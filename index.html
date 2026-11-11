@@ -206,6 +206,18 @@ a{color:var(--indigo)}
 .wrong-hist .wh-ans b.ng{color:var(--red)}
 .wrong-hist .wh-point{font-size:13px;color:var(--ink2);margin-top:8px;line-height:1.75}
 .wh-del{margin-top:10px;background:none;border:1px solid var(--line);border-radius:3px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--muted);min-height:44px;font:inherit}
+/* AIでレッスンを追加（学ぶタブ・分野一覧の下） */
+.ai-box{background:var(--card);border:1px solid var(--line-strong);padding:18px 20px;margin-top:14px}
+.ai-note{margin:0 0 6px;font-size:13px;color:var(--ink2);line-height:1.8}
+.ai-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
+.ai-label{display:block;font-size:12.5px;font-weight:800;color:var(--ink2);margin:14px 0 6px}
+.ai-select,.ai-input{padding:10px 12px;border:1px solid var(--line-strong);border-radius:3px;background:var(--card);color:var(--ink);font:inherit;font-size:14px;min-height:44px;max-width:100%}
+.ai-select{min-width:160px}
+.ai-input{flex:1;min-width:200px}
+.ai-textarea{width:100%;padding:10px 12px;border:1px solid var(--line-strong);border-radius:3px;background:var(--card);color:var(--ink);font:inherit;font-size:13.5px;line-height:1.6;resize:vertical}
+.ai-msg{font-size:12.5px;color:var(--muted);font-weight:700;line-height:1.6}
+.ai-msg.ok{color:var(--green)}
+.ai-msg.ng{color:var(--red)}
 footer{margin-top:44px;padding-top:14px;border-top:3px double var(--line-strong);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 @media(max-width:860px){.detail{padding:20px}}
 @media(max-width:560px){
@@ -276,6 +288,32 @@ footer{margin-top:44px;padding-top:14px;border-top:3px double var(--line-strong)
     <div id="learnFields">
       <div class="sec-head"><h2>分野から学ぶ</h2><p id="learnTotal"></p></div>
       <div class="fgrid" id="fieldGrid"></div>
+
+      <div class="sec-head"><h2>AIでレッスンを追加</h2><p>外部AIで作ったレッスンを取り込めます</p></div>
+      <div class="ai-box">
+        <p class="ai-note">① 分野とテーマを選んで指示文をコピー → ② ChatGPT・Claudeなどに貼り付けて、返ってきたJSONを ③ 下の欄に貼って取り込み。APIキーは不要です。</p>
+        <div class="ai-row">
+          <label class="ai-label" for="aiField" style="margin:0">分野</label>
+          <select id="aiField" class="ai-select"></select>
+        </div>
+        <div class="ai-row">
+          <label class="ai-label" for="aiTheme" style="margin:0">テーマ（任意）</label>
+          <input id="aiTheme" class="ai-input" type="text" placeholder="例：固定資産税の軽減措置">
+        </div>
+        <div class="ai-row">
+          <button class="btn btn-outline" id="aiCopyBtn">指示文をコピー</button>
+          <span class="ai-msg" id="aiCopyMsg" role="status"></span>
+        </div>
+        <label class="ai-label" for="aiPaste">AIの出力を貼り付け</label>
+        <textarea id="aiPaste" class="ai-textarea" rows="6" placeholder='{"title": "...", "summary": "...", "body": "...", "questions": [...]}'></textarea>
+        <div class="ai-row">
+          <button class="btn btn-teal" id="aiImportBtn">取り込む</button>
+          <span class="ai-msg" id="aiImportMsg" role="status"></span>
+        </div>
+      </div>
+
+      <div class="sec-head"><h2>取り込み済みのAIレッスン</h2><p id="aiCount"></p></div>
+      <div id="aiList"></div>
     </div>
     <div id="learnList" style="display:none">
       <button class="back-btn" id="learnBackBtn">← 分野一覧に戻る</button>
@@ -439,6 +477,25 @@ function loadState(){
 }
 loadState();
 
+/* ---- AI取り込み分（カスタムレッスン・問題）：描画前に末尾へ追加 ---- */
+var CUSTOM_KEY="gakushu-app-custom-v1";
+var customData={lessons:[],questions:[]};
+function loadCustom(){
+  try{
+    var raw=localStorage.getItem(CUSTOM_KEY);
+    if(!raw)return;
+    var s=JSON.parse(raw);
+    if(s&&Array.isArray(s.lessons))customData.lessons=s.lessons.filter(function(l){return l&&typeof l.id==="string"&&typeof l.field==="string"&&typeof l.body==="string";});
+    if(s&&Array.isArray(s.questions))customData.questions=s.questions.filter(function(q){return q&&typeof q.q==="string"&&Array.isArray(q.choices);});
+    customData.lessons.forEach(function(l){LESSONS.push(l);});
+    customData.questions.forEach(function(q){QUESTIONS.push(q);});
+  }catch(e){customData={lessons:[],questions:[]};}
+}
+function saveCustom(){
+  try{localStorage.setItem(CUSTOM_KEY,JSON.stringify(customData));return true;}catch(e){return false;}
+}
+loadCustom();
+
 function $(id){return document.getElementById(id);}
 function qIndex(q){for(var i=0;i<QUESTIONS.length;i++)if(QUESTIONS[i]===q)return i;for(var j=0;j<QUESTIONS.length;j++)if(QUESTIONS[j].q===q.q)return j;return -1;}
 function fmtDate(ts){var d=new Date(ts);return (d.getMonth()+1)+"/"+d.getDate();}
@@ -493,9 +550,9 @@ function renderHome(){
   var top=LESSONS.filter(function(l){return GRADE_RANK[l.grade]<=1;});
   var dayIdx=Math.floor(Date.now()/86400000)%top.length;
   var today=top[dayIdx];
-  $("heroTitle").textContent=today.title.split("—")[0].split("：")[0];
+  $("heroTitle").innerHTML=today.title.split("—")[0].split("：")[0];
   $("heroKicker").textContent="本日のテーマ — "+fieldName(today.field);
-  $("heroText").textContent=today.summary;
+  $("heroText").innerHTML=today.summary;
   $("nightList").innerHTML=top.slice(dayIdx,dayIdx+3).concat(top.slice(0,Math.max(0,dayIdx+3-top.length))).slice(0,3).map(function(l,i){
     return "<li><span class='nl-num'>"+(i+1)+"</span><span>"+l.title+"</span></li>";
   }).join("");
@@ -599,7 +656,8 @@ var KEYTERMS=["政策金利","短期プライムレート","短プラ","変動�
 function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;");}
 function maskifyText(text, prefix){
   var terms=KEYTERMS.slice().sort(function(a,b){return b.length-a.length;});
-  var out=escHtml(text);
+  /* text は保存時（取り込み時）にHTMLエスケープ済み。二重エスケープしない */
+  var out=String(text);
   terms.forEach(function(t){
     var et=escHtml(t);
     if(out.indexOf(et)===-1)return;
@@ -823,7 +881,195 @@ function showResult(){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
+/* ---- AIでレッスンを追加：変換・検証（純粋関数） ---- */
+/* AI-IMPORT-PURE-BEGIN */
+function escAll(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+function aiInline(s){return escAll(s).replace(/\[\[([^\[\]]+?)\]\]/g,"<span class='key'>$1</span>");}
+/* body：HTMLエスケープ → [[重要語]] → <span class='key'>、空行で<p>、「## 」行は<h3> */
+function bodyToHtml(text){
+  var out=[],para=[];
+  function flush(){if(para.length){out.push("<p>"+para.join("<br>")+"</p>");para=[];}}
+  String(text).replace(/\r\n?/g,"\n").split("\n").forEach(function(raw){
+    var line=raw.trim();
+    if(!line){flush();return;}
+    if(line.indexOf("## ")===0){flush();out.push("<h3>"+aiInline(line.slice(3).trim())+"</h3>");return;}
+    para.push(aiInline(line));
+  });
+  flush();
+  return out.join("");
+}
+function cleanQuestion(q){
+  if(!q||typeof q!=="object")return null;
+  var str=function(x){return typeof x==="string"?x.trim():"";};
+  var text=str(q.q),explain=str(q.explain);
+  if(!text||!explain)return null;
+  if(!Array.isArray(q.choices)||q.choices.length!==4)return null;
+  var ch=q.choices.map(str);
+  if(ch.some(function(c){return !c;}))return null;
+  if(typeof q.answer!=="number"||q.answer%1!==0||q.answer<0||q.answer>3)return null;
+  return {q:text,choices:ch,answer:q.answer,explain:explain,point:str(q.point)};
+}
+/* 貼り付けテキスト → {error} または {title,summary,body,questions:[cleaned],skipped} */
+function parseAIImport(text){
+  var s=String(text||"");
+  var a=s.indexOf("{"),b=s.lastIndexOf("}");
+  if(a<0||b<a)return {error:"JSONが見つかりません。{ で始まり } で終わる部分を含めてください。"};
+  var data;
+  try{data=JSON.parse(s.slice(a,b+1));}catch(e){return {error:"JSONとして読めません（"+e.message+"）。"};}
+  if(!data||typeof data!=="object"||Array.isArray(data))return {error:"JSONの形式が違います。"};
+  var title=typeof data.title==="string"?data.title.trim():"";
+  var body=typeof data.body==="string"?data.body.trim():"";
+  if(!title)return {error:"title（タイトル）が空です。"};
+  if(!body)return {error:"body（本文）が空です。"};
+  var summary=typeof data.summary==="string"?data.summary.trim():"";
+  if(!summary)summary=body.replace(/\[\[|\]\]/g,"").replace(/\s+/g," ").slice(0,60);
+  var qs=[],skipped=0;
+  (Array.isArray(data.questions)?data.questions:[]).forEach(function(q){
+    var c=cleanQuestion(q);
+    if(c)qs.push(c);else skipped++;
+  });
+  return {title:title,summary:summary,body:body,questions:qs,skipped:skipped};
+}
+/* AI-IMPORT-PURE-END */
+
+/* 外部AIへの指示文（出力はJSONのみ） */
+var AI_FORMAT_LINES=[
+  "{",
+  "  \"title\": \"レッスンのタイトル\",",
+  "  \"summary\": \"1〜2行の要約\",",
+  "  \"body\": \"本文。段落は空行で区切る。重要語は [[ ]] で囲む（例：[[固定資産税]]）。見出しが必要なら行頭に「## 」を付ける。\",",
+  "  \"questions\": [",
+  "    {\"q\": \"問題文\", \"choices\": [\"選択肢1\",\"選択肢2\",\"選択肢3\",\"選択肢4\"], \"answer\": 0, \"explain\": \"正解の理由。実務の例も1つ入れる。\", \"point\": \"保存用の要点を1行で\"}",
+  "  ]",
+  "}"
+];
+function buildAIPrompt(fid,theme){
+  return [
+    "あなたは日本語の学習教材の作成者です。以下の条件で、学習レッスン1本と確認問題を作ってください。",
+    "",
+    "分野：" + fieldName(fid),
+    "テーマ：" + (theme||"基礎〜実務の頻出テーマから1つ"),
+    "",
+    "【内容の水準】",
+    "- 三井住友トラスト不動産の実務（金融・不動産・税務・経済学・経営学・AI実務）で使える基礎〜応用の内容にする。",
+    "- 数字を使う場合は、一般に知られた正確なものだけを使う。不確かな数字は書かない。",
+    "- 実務の例を1つ入れる。",
+    "",
+    "【本文（body）】",
+    "- 段落は空行で区切る。",
+    "- 重要語は [[ ]] で囲む（例：[[固定資産税]]）。",
+    "- 見出しが必要なら行頭に「## 」を付ける。",
+    "",
+    "【問題（questions）】",
+    "- 3〜5問。選択肢は4つ。",
+    "- 選択肢は正解と紛らわしく、長さや言い回しを近づける。",
+    "- answer は正解の添字（0〜3の整数。0が1番目の選択肢）。",
+    "- explain は正解の理由と実務の例を含める。point は保存用の要点を1行で。",
+    "",
+    "【出力形式】",
+    "次のJSONだけを出力してください。説明文・前置き・後書きなど、JSON以外の文章は書かないでください（コードフェンス ``` で囲むのは可）。",
+    ""
+  ].concat(AI_FORMAT_LINES).join("\n");
+}
+
+/* ---- AIでレッスンを追加：画面 ---- */
+function setMsg(id,kind,text){var el=$(id);el.className="ai-msg"+(kind?" "+kind:"");el.textContent=text;}
+function copyText(text){
+  var fallback=function(){
+    var ta=document.createElement("textarea");ta.value=text;ta.setAttribute("readonly","");
+    ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+    var ok=false;try{ok=document.execCommand("copy");}catch(e){}
+    document.body.removeChild(ta);return ok;
+  };
+  if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(text).then(function(){return true;},fallback);
+  return Promise.resolve(fallback());
+}
+function buildAIFieldSelect(){
+  var sel=$("aiField");sel.innerHTML="";
+  FIELDS.forEach(function(f){var o=document.createElement("option");o.value=f.id;o.textContent=f.name;sel.appendChild(o);});
+  if(learnField)sel.value=learnField;
+}
+function renderAIList(){
+  $("aiCount").textContent=customData.lessons.length+"本";
+  var w=$("aiList");
+  if(!customData.lessons.length){w.innerHTML="<div class='empty'>まだ取り込んだAIレッスンはありません。上の欄から追加できます。</div>";return;}
+  w.innerHTML="<div class='bm-list-wrap'>"+customData.lessons.map(function(l){
+    var n=customData.questions.filter(function(q){return q.lid===l.id;}).length;
+    return "<div class='bm-item'><span class='bm-field'>"+fieldName(l.field)+" ・ 問題"+n+"問</span><p>"+l.title+"</p>"
+      +"<button class='wh-del' data-ai-del='"+l.id+"'>削除</button></div>";
+  }).join("")+"</div>";
+  w.querySelectorAll("[data-ai-del]").forEach(function(btn){
+    btn.addEventListener("click",function(){deleteCustomLesson(btn.getAttribute("data-ai-del"));});
+  });
+}
+function importAI(){
+  var fid=$("aiField").value;
+  var res=parseAIImport($("aiPaste").value);
+  if(res.error){setMsg("aiImportMsg","ng","取り込めませんでした："+res.error);return;}
+  var id="custom-"+Date.now();
+  while(LESSONS.some(function(l){return l.id===id;}))id+="x";
+  var lesson={id:id,field:fid,grade:"A",title:escAll(res.title),mins:5,summary:escAll(res.summary),body:bodyToHtml(res.body)};
+  var qs=res.questions.map(function(c){
+    return {field:fid,grade:"A",q:escAll(c.q),choices:c.choices.map(escAll),answer:c.answer,
+      explain:escAll(c.explain),point:escAll(c.point||res.title),lid:id};  });
+  var prev={lessons:customData.lessons.slice(),questions:customData.questions.slice()};
+  customData.lessons.push(lesson);
+  qs.forEach(function(q){customData.questions.push(q);});
+  if(!saveCustom()){
+    customData=prev;
+    setMsg("aiImportMsg","ng","保存できませんでした（ブラウザの保存領域が使えない状態です）。");
+    return;
+  }
+  LESSONS.push(lesson);
+  qs.forEach(function(q){QUESTIONS.push(q);});
+  $("aiPaste").value="";
+  var note=res.skipped?"（不正な問 "+res.skipped+" 問は除外）":"";
+  setMsg("aiImportMsg","ok","取り込みました：「"+res.title+"」（問題"+qs.length+"問）"+note);
+  renderAIList();renderLearnFields();renderHome();updateStats();
+}
+function deleteCustomLesson(id){
+  if(!customData.lessons.some(function(l){return l.id===id;}))return;
+  if(!confirm("このAIレッスンと、紐づく問題を削除します。よろしいですか？"))return;
+  var next={lessons:customData.lessons.filter(function(l){return l.id!==id;}),
+            questions:customData.questions.filter(function(q){return q.lid!==id;})};
+  var prev=customData;customData=next;
+  if(!saveCustom()){customData=prev;setMsg("aiImportMsg","ng","削除を保存できませんでした。");return;}
+  /* 問題の添字が詰まるので、保存済みの間違い・途中のクイズ・暗記マスクを付け替える */
+  var oldQ=QUESTIONS.slice(),n=oldQ.length,remap=[],shift=0,removedPts=[],keepPts={};
+  for(var i=0;i<n;i++){
+    if(oldQ[i].lid===id){remap[i]=-1;shift++;removedPts.push(oldQ[i].point);}
+    else{remap[i]=i-shift;keepPts[oldQ[i].point]=true;}
+  }
+  var mapQi=function(qi){return (typeof qi==="number"&&qi>=0&&qi<n)?remap[qi]:-1;};
+  wrongHist=wrongHist.map(function(r){r.qi=mapQi(r.qi);return r;}).filter(function(r){return r.qi>=0;});
+  if(inProgress&&inProgress.qis){
+    if(inProgress.qis.some(function(qi){return mapQi(qi)<0;}))inProgress=null;
+    else{
+      inProgress.qis=inProgress.qis.map(mapQi);
+      inProgress.wrongQis=(inProgress.wrongQis||[]).map(mapQi).filter(function(x){return x>=0;});
+    }
+  }
+  var nm={};
+  Object.keys(maskRevealed).forEach(function(k){
+    if(k.indexOf("Q:")===0){var nq=mapQi(parseInt(k.slice(2),10));if(nq>=0)nm["Q:"+nq]=true;}
+    else if(k.indexOf("L:")===0){if(k.slice(2)!==id)nm[k]=true;}
+    else nm[k]=true;
+  });
+  maskRevealed=nm;
+  bookmarks=bookmarks.filter(function(b){return !(removedPts.indexOf(b.point)!==-1&&!keepPts[b.point]);});
+  saveState();
+  location.reload();
+}
+$("aiCopyBtn").addEventListener("click",function(){
+  var text=buildAIPrompt($("aiField").value,$("aiTheme").value.trim());
+  copyText(text).then(function(ok){
+    setMsg("aiCopyMsg",ok?"ok":"ng",ok?"指示文をコピーしました。AIに貼り付けてください。":"コピーできませんでした。");
+  });
+});
+$("aiImportBtn").addEventListener("click",importAI);
+
 renderHome();showLearnRoot();updateStats();
+buildAIFieldSelect();renderAIList();
 
 </script>
 </body>
