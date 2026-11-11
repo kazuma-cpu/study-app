@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta name="theme-color" content="#2b3a67">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="学習アプリ">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="color-scheme" content="light dark"/>
+<link rel="icon" href="data:,"/>
+<title>学習アプリ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#faf7ef; --paper2:#f1ebdc; --card:#fffdf7; --ink:#1c1a15; --ink2:#3d3a32; --muted:#6f6a5c; --line:#d8d0ba; --line-strong:#1c1a15;
+  --red:#b42318; --red-soft:#fbeae8;
+  --indigo:#1e3a5f; --indigo-deep:#14273f; --indigo-soft:#e6ebf2;
+  --warm:#a16207; --warm-soft:#faf0d7; --warm-bright:#d97706;
+  --green:#3f6212; --green-soft:#eef3df;
+  --tape:#243447; --tape-ink:#f5efe0;
+  color-scheme:light;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --paper:#191713; --paper2:#211e18; --card:#201d17; --ink:#ece7d9; --ink2:#d6d0bf; --muted:#a39c8a; --line:#3d382c; --line-strong:#ece7d9;
+    --red:#f08a80; --red-soft:#3a1f1c;
+    --indigo:#8fb0d8; --indigo-deep:#0f1c2e; --indigo-soft:#232f42;
+    --warm:#e3b341; --warm-soft:#38300f; --warm-bright:#e3b341;
+    --green:#a3c585; --green-soft:#26331a;
+    --tape:#e8e2d2; --tape-ink:#1c1a15;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Noto Sans JP",system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+button,[role="button"],select,input:not([type="checkbox"]){min-height:44px}
+a{color:var(--indigo)}
+.key{color:var(--red);font-weight:800}
+.wrap{max-width:1060px;margin:0 auto;padding:0 18px 110px}
+/* Masthead — newspaper nameplate */
+.masthead{border-bottom:3px double var(--line-strong);background:var(--paper)}
+.masthead-in{max-width:1060px;margin:0 auto;padding:14px 18px 10px}
+.mast-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:11.5px;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
+.mast-row{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mast-title{font-family:"Noto Serif JP",serif;font-weight:900;font-size:26px;letter-spacing:.06em;margin:0;line-height:1.2}
+.mast-title small{font-size:12px;letter-spacing:.14em;color:var(--muted);font-family:"Noto Sans JP",sans-serif;font-weight:700;margin-left:10px}
+.mast-stats{display:flex;gap:14px;font-size:12.5px;color:var(--ink2);flex-wrap:wrap}
+.mast-stats b{font-family:"Noto Serif JP",serif;font-size:15px}
+.mast-stats .ms-wrong b{color:var(--red)}
+/* Bottom tab bar */
+.bottombar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:2px solid var(--line-strong);padding-bottom:env(safe-area-inset-bottom)}
+.bottombar-in{max-width:1060px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+.btab{border:0;border-right:1px solid var(--line);background:none;color:var(--muted);font:inherit;font-size:11.5px;font-weight:700;padding:10px 2px 9px;cursor:pointer;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative}
+.btab:last-child{border-right:0}
+.btab .bt-ic{font-family:"Noto Serif JP",serif;font-size:17px;line-height:1;font-weight:900}
+.btab.active{color:var(--ink);background:var(--paper2);box-shadow:inset 0 3px 0 var(--red)}
+.btab .badge{position:absolute;top:6px;right:calc(50% - 22px);min-width:19px;height:19px;line-height:19px;text-align:center;background:var(--red);color:#fff;font-size:10.5px;font-weight:800;border-radius:999px;padding:0 5px}
+/* Buttons — squared, editorial */
+.btn{border:1px solid var(--line-strong);cursor:pointer;font-weight:800;padding:11px 18px;border-radius:3px;font-size:14px;display:inline-flex;align-items:center;gap:8px;min-height:50px;font:inherit;background:var(--card);color:var(--ink);text-decoration:none}
+.btn-primary{background:var(--indigo-deep);color:#f5efe0;border-color:var(--indigo-deep)}
+@media(prefers-color-scheme:dark){.btn-primary{background:var(--indigo);color:#0f1c2e;border-color:var(--indigo)}}
+.btn-ghost{background:transparent}
+.btn-teal{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+@media(prefers-color-scheme:dark){.btn-teal{color:#0f1c2e}}
+.btn-outline{background:var(--card)}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-small{min-height:44px;padding:8px 13px;font-size:13px}
+/* Home — tonight first */
+.tonight{border:2px solid var(--line-strong);background:var(--card);margin-top:18px}
+.tonight-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:12px 18px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tonight-head h2{font-family:"Noto Serif JP",serif;font-size:19px;margin:0}
+.tonight-head .t-sub{font-size:12px;color:var(--muted)}
+.tonight-topic{padding:12px 18px 4px}
+.tonight-topic .t-kicker{font-size:11px;font-weight:800;letter-spacing:.16em;color:var(--warm)}
+.tonight-topic h3{font-family:"Noto Serif JP",serif;font-size:21px;line-height:1.45;margin:4px 0 6px}
+.tonight-topic p{margin:0;font-size:13.5px;color:var(--ink2);max-width:62ch}
+.night-lines{list-style:none;margin:10px 0 0;padding:4px 18px 14px}
+.night-lines li{display:flex;gap:14px;align-items:baseline;padding:13px 2px;border-bottom:1px solid var(--line);font-size:17.5px;line-height:1.65}
+.night-lines li:last-child{border-bottom:0}
+.night-lines .nl-num{font-family:"Noto Serif JP",serif;font-weight:900;color:var(--red);font-size:15px;flex-shrink:0;width:20px;text-align:center}
+.night-lines .nl-grade{font-size:11px;font-weight:900;border:1px solid currentColor;padding:1px 6px;border-radius:2px;flex-shrink:0;position:relative;top:-2px}
+.night-actions{display:flex;gap:10px;flex-wrap:wrap;padding:0 18px 16px}
+.progress-line{margin-top:14px;border-top:1px solid var(--line-strong);border-bottom:1px solid var(--line);padding:10px 2px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.progress-line .bar{flex:1;min-width:120px;height:6px;background:var(--paper2);border:1px solid var(--line)}
+.progress-line .bar i{display:block;height:100%;background:var(--indigo)}
+.progress-line b{color:var(--ink);font-family:"Noto Serif JP",serif}
+/* Section heads — ruled */
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:30px 0 0;padding-bottom:8px;border-bottom:2px solid var(--line-strong)}
+.sec-head h2{font-family:"Noto Serif JP",serif;font-size:20px;margin:0}
+.sec-head p{margin:0;font-size:12.5px;color:var(--muted);text-align:right}
+/* Controls */
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:20px 0 4px}
+.search{flex:1;min-width:200px}
+.search input{width:100%;padding:12px 14px;border-radius:3px;border:1px solid var(--line-strong);background:var(--card);color:var(--ink);font-size:14px;min-height:50px;font:inherit}
+.toggle{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);padding:8px 12px 8px 14px;border-radius:3px;cursor:pointer;min-height:50px}
+.toggle input{width:20px;height:20px;accent-color:var(--indigo)}
+.toggle label{font-size:13px;font-weight:700;cursor:pointer}
+.chips{display:flex;gap:0;flex-wrap:wrap;margin:14px 0 4px;border:1px solid var(--line-strong);width:fit-content;max-width:100%;background:var(--card)}
+.chip{padding:10px 15px;border:0;border-right:1px solid var(--line);background:none;font-weight:700;font-size:13.5px;cursor:pointer;min-height:48px;color:var(--ink2);font:inherit}
+.chip:last-child{border-right:0}
+.chip.active{background:var(--indigo-deep);color:#f5efe0}
+@media(prefers-color-scheme:dark){.chip.active{background:var(--indigo);color:#0f1c2e}}
+.chip small{opacity:.7;font-weight:500;margin-left:4px}
+/* Lesson list — editorial rows, not cards */
+.grid{display:block;border-bottom:1px solid var(--line)}
+.card{display:grid;grid-template-columns:64px 1fr auto;gap:6px 14px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:15px 6px;cursor:pointer;font:inherit;color:inherit;align-items:start}
+.card:hover{background:var(--card)}
+.card-top{display:contents}
+.field{grid-row:1;font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--indigo);padding-top:3px}
+.grade{grid-row:1;grid-column:3;font-weight:900;font-size:13px;font-family:"Noto Serif JP",serif;border:1.5px solid currentColor;padding:2px 8px;border-radius:2px;line-height:1.3;white-space:nowrap}
+.g-aplus{color:var(--red)}.g-a{color:var(--red)}.g-aminus{color:var(--warm-bright)}
+.g-bplus{color:var(--indigo)}.g-b{color:var(--indigo)}.g-bminus{color:var(--muted)}.g-c{color:var(--muted)}
+.card h3{grid-column:2;margin:0;font-size:16.5px;line-height:1.5;font-weight:800;font-family:"Noto Serif JP",serif}
+.card p{grid-column:2;margin:0;font-size:13px;color:var(--muted);line-height:1.65}
+.card-foot{grid-column:2;display:flex;gap:14px;align-items:center;font-size:12px;color:var(--muted)}
+.card-foot b{color:var(--indigo)}
+.done-badge{font-size:11px;font-weight:800;color:var(--green)}
+/* Legend */
+.legend{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line-strong);background:var(--card);margin-top:14px}
+.legend-box{padding:16px 18px;border-right:1px solid var(--line)}
+.legend-box:last-child{border-right:0}
+.legend-box h4{margin:0 0 6px;font-size:14px;font-family:"Noto Serif JP",serif}
+.legend-box p{margin:0;font-size:13px;color:var(--muted)}
+.legend-grades{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.legend-grades .grade{border:1.5px solid currentColor}
+/* Views */
+.view{display:none}.view.active{display:block}
+/* Lesson detail — article */
+.detail{background:var(--card);border:1px solid var(--line-strong);padding:28px 30px;margin-top:6px}
+.detail h2{font-family:"Noto Serif JP",serif;font-size:25px;line-height:1.4;margin:10px 0 8px}
+.detail .lead{font-size:15px;color:var(--ink2);line-height:1.85;border-bottom:1px solid var(--line);padding-bottom:14px}
+.detail h3{font-size:15.5px;margin:24px 0 8px;font-family:"Noto Serif JP",serif;border-bottom:1px solid var(--line);padding-bottom:5px}
+.detail p,.detail li{font-size:14.5px;line-height:1.9}
+.detail ul{padding-left:20px}
+.callout{background:var(--warm-soft);border-left:4px solid var(--warm-bright);padding:14px 18px;margin:18px 0;border-radius:0 3px 3px 0}
+.callout b{font-size:13px;letter-spacing:.04em;color:var(--warm)}
+.callout p{margin:6px 0 0}
+.formula{background:var(--indigo-soft);border:1px solid var(--line);padding:13px 16px;font-weight:700;text-align:center;font-size:15px;margin:14px 0;font-family:"Noto Serif JP",serif}
+.back-btn{background:none;border:0;color:var(--indigo);font-weight:800;cursor:pointer;padding:10px 4px;font-size:14px;min-height:44px;font:inherit}
+/* Mask (red-sheet) */
+.mask{cursor:pointer;border-radius:2px;padding:0 5px;margin:0 1px;font-weight:800;transition:background .15s;position:relative;white-space:normal}
+.mask.masked{background:var(--tape);color:transparent;-webkit-text-fill-color:transparent;box-shadow:inset 0 0 0 1px var(--tape);user-select:none}
+.mask.masked *{color:transparent;-webkit-text-fill-color:transparent}
+.mask.revealed{background:var(--red-soft);color:var(--red);-webkit-text-fill-color:var(--red);box-shadow:inset 0 -2px 0 var(--red)}
+.mask-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 4px;padding:10px 12px;background:var(--paper2);border:1px dashed var(--line-strong);font-size:12.5px}
+.mask-bar .mb-label{font-weight:800;margin-right:2px}
+.mask-bar button{border:1px solid var(--line-strong);background:var(--card);color:var(--ink);font:inherit;font-size:12.5px;font-weight:800;padding:8px 13px;border-radius:3px;cursor:pointer;min-height:44px}
+/* Quiz */
+.quiz-hero{background:var(--card);border:1px solid var(--line-strong);padding:22px 24px;margin-top:18px}
+.quiz-hero h2{font-family:"Noto Serif JP",serif;margin:0 0 8px;font-size:21px}
+.quiz-hero p{color:var(--ink2);font-size:13.5px;margin:0 0 14px}
+.quiz-fields{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.q-progress{height:6px;background:var(--paper2);border:1px solid var(--line);margin:12px 0}
+.q-progress i{display:block;height:100%;background:var(--warm-bright);transition:width .3s}
+.q-meta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);font-weight:700;margin-top:16px}
+.q-card{background:var(--card);border:1px solid var(--line-strong);padding:22px 24px;margin-top:10px}
+.q-card .q-field{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--indigo)}
+.q-card h3{font-size:17.5px;line-height:1.65;margin:10px 0 18px;font-family:"Noto Serif JP",serif}
+.choices{display:grid;gap:9px}
+.choice{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:var(--card);border:1px solid var(--line-strong);border-radius:3px;padding:14px 16px;cursor:pointer;font:inherit;font-size:14.5px;line-height:1.6;min-height:54px;color:var(--ink)}
+.choice .letter{width:28px;height:28px;border:1.5px solid var(--line-strong);display:grid;place-items:center;font-weight:800;font-size:13px;flex-shrink:0;font-family:"Noto Serif JP",serif}
+.choice:hover{background:var(--paper2)}
+.choice.correct{border-color:var(--indigo);background:var(--indigo-soft)}
+.choice.correct .letter{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.choice.wrong{border-color:var(--red);background:var(--red-soft)}
+.choice.wrong .letter{background:var(--red);color:#fff;border-color:var(--red)}
+.choice:disabled{cursor:default;opacity:1}
+.explain{display:none;margin-top:18px;border-top:2px solid var(--line-strong);padding-top:14px}
+.explain.show{display:block}
+.explain h4{margin:0 0 6px;font-size:14px;font-family:"Noto Serif JP",serif}
+.explain h4 .ok{color:var(--indigo)}.explain h4 .ng{color:var(--red)}
+.explain p{margin:0;font-size:14px;line-height:1.85}
+.explain .point{margin-top:12px;background:var(--paper2);border:1px solid var(--line);padding:11px 13px;font-size:13.5px;line-height:1.8}
+.bookmark-btn{margin-top:10px;background:var(--card);border:1px solid var(--line-strong);border-radius:3px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:13px;min-height:44px;font:inherit;color:var(--ink)}
+.bookmark-btn.saved{background:var(--warm-bright);border-color:var(--warm-bright);color:#fff}
+.q-actions{display:flex;justify-content:flex-end;margin-top:16px}
+.result{padding:6px 0 2px;border-bottom:1px solid var(--line);padding-bottom:14px}
+.result-score{font-family:"Noto Serif JP",serif;font-size:44px;line-height:1.1}
+.result-score small{font-size:18px;color:var(--muted)}
+.result-msg{font-family:"Noto Serif JP",serif;font-size:16.5px;line-height:1.6;margin:8px 0 0}
+.wrong-list{text-align:left;margin-top:6px}
+.wrong-item{border-top:1px solid var(--line);padding:12px 2px;font-size:14px;line-height:1.75}
+.wrong-item b{display:block;margin-bottom:3px;font-family:"Noto Serif JP",serif}
+.resume-banner{background:var(--warm-soft);border:1px solid var(--warm-bright);padding:13px 15px;margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;font-size:13.5px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line-strong);margin-top:16px;background:var(--card)}
+.stat-cell{padding:11px 8px;text-align:center;border-right:1px solid var(--line)}
+.stat-cell:last-child{border-right:0}
+.stat-cell b{display:block;font-size:21px;line-height:1.2;font-family:"Noto Serif JP",serif}
+.stat-cell span{font-size:11.5px;color:var(--muted);font-weight:700}
+/* Bookmarks & wrong history */
+.empty{border:1.5px dashed var(--line-strong);padding:30px 20px;text-align:center;color:var(--muted);margin-top:14px;background:var(--card);font-size:14px;line-height:1.8}
+.bm-item{background:var(--card);border:0;border-top:1px solid var(--line);padding:14px 4px}
+.bm-item .bm-field{font-size:11px;font-weight:800;color:var(--indigo);letter-spacing:.06em}
+.bm-item p{margin:5px 0 0;font-size:14.5px;line-height:1.75}
+.bm-list-wrap{border-bottom:1px solid var(--line);margin-top:6px}
+.wrong-hist{background:var(--card);border:0;border-top:1px solid var(--line);padding:15px 4px}
+.wrong-hist .wh-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:11.5px;color:var(--muted);font-weight:700}
+.wrong-hist .wh-meta .wh-count{color:var(--red);font-weight:900}
+.wrong-hist h3{margin:7px 0 6px;font-size:15.5px;line-height:1.65;font-family:"Noto Serif JP",serif}
+.wrong-hist .wh-ans{font-size:13.5px;line-height:1.75;background:var(--paper2);border:1px solid var(--line);padding:10px 12px;margin-top:8px}
+.wrong-hist .wh-ans b.ok{color:var(--indigo)}
+.wrong-hist .wh-ans b.ng{color:var(--red)}
+.wrong-hist .wh-point{font-size:13px;color:var(--ink2);margin-top:8px;line-height:1.75}
+.wh-del{margin-top:10px;background:none;border:1px solid var(--line);border-radius:3px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--muted);min-height:44px;font:inherit}
+footer{margin-top:44px;padding-top:14px;border-top:3px double var(--line-strong);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+@media(max-width:860px){.legend{grid-template-columns:1fr}.legend-box{border-right:0;border-bottom:1px solid var(--line)}.legend-box:last-child{border-bottom:0}.detail{padding:20px}}
+@media(max-width:560px){
+  .mast-title{font-size:21px}.mast-title small{display:block;margin:2px 0 0}
+  .night-lines li{font-size:16.5px}
+  .card{grid-template-columns:52px 1fr auto}
+  .sec-head p{display:none}
+  .btab{font-size:10.5px;min-height:60px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <div class="mast-top"><span id="mastDate">今日</span><span>金融 ・ 不動産 ・ 税務 ・ 経済学 ・ 経営学 ・ AI実務</span><span>就寝前の紙ノートと併用</span></div>
+    <div class="mast-row">
+      <h1 class="mast-title">学習ノート<small>毎日のインプットと問題</small></h1>
+      <div class="mast-stats">
+        <span>読了 <b id="statDone">0</b></span>
+        <span class="ms-wrong">間違い <b id="statWrong">0</b></span>
+        <span>保存 <b id="statBm">0</b></span>
+        <span>前回クイズ <b id="statQuiz">—</b></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HOME -->
+  <section class="view active" id="view-home">
+    <div class="tonight">
+      <div class="tonight-head"><h2>今夜ノートに写す分</h2><span class="t-sub">重要度 A+・A のみ ／ 最大3行 ／ 23:30、スマホを寝室の外へ置く直前に</span></div>
+      <ul class="night-lines" id="nightList"></ul>
+      <div class="tonight-topic">
+        <div class="t-kicker" id="heroKicker">本日のテーマ</div>
+        <h3 id="heroTitle">—</h3>
+        <p id="heroText"></p>
+      </div>
+      <div class="night-actions">
+        <button class="btn btn-primary" id="heroLearnBtn">今日のレッスンを開く →</button>
+        <button class="btn btn-ghost" id="heroQuizBtn">クイズ10問に挑戦</button>
+      </div>
+    </div>
+    <div class="progress-line"><span>レッスンの進み具合</span><div class="bar"><i id="progBar" style="width:0%"></i></div><span id="progText"><b>0 / 19</b> レッスン読了</span><span>重点範囲は A+〜B</span></div>
+
+    <div class="sec-head"><h2>分野から選ぶ</h2><p>6分野ローテーション</p></div>
+    <div class="chips" id="homeChips"></div>
+
+    <div class="sec-head"><h2>おすすめレッスン</h2><p>重要度 A+〜B を優先表示中</p></div>
+    <div class="grid" id="homeGrid"></div>
+  </section>
+
+  <!-- LEARN -->
+  <section class="view" id="view-learn">
+    <div id="learnList">
+      <div class="controls">
+        <div class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="キーワードで探す（例：金利、利回り、譲渡所得）" aria-label="レッスン検索"></div>
+        <div class="toggle"><input type="checkbox" id="focusToggle" checked><label for="focusToggle">A+〜B だけ表示（重点範囲）</label></div>
+      </div>
+      <div class="chips" id="learnChips"></div>
+      <div class="sec-head"><h2 id="learnCount">レッスン一覧</h2><p>カードをタップで本文が開きます</p></div>
+      <div class="grid" id="learnGrid"></div>
+      <div class="empty" id="learnEmpty" style="display:none">条件に合うレッスンがありません。分野か検索ワードを変えてみてください。</div>
+    </div>
+    <div id="lessonDetail" style="display:none"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="view" id="view-quiz">
+    <div id="quizStart">
+      <div class="quiz-hero">
+        <h2>問題を解く — 10問・即時採点</h2>
+        <p>4択と穴埋めの混合です。選択肢は「部分的に正しい引っかけ」を混ぜてあるので、なんとなくではなく根拠で選んでください。1問ごとに解説が出て、気になったポイントは保存できます。全問終わると結果（スコア・間違えた問題・保存ポイント）がまとまります。</p>
+        <div class="quiz-fields" id="quizFields"></div>
+        <button class="btn btn-teal" id="startQuizBtn">クイズを始める（10問）→</button>
+        <button class="btn btn-outline" id="reviewWrongBtn" style="margin-left:8px">間違えた問題だけで復習</button>
+        <div id="resumeBox"></div>
+        <div class="stat-grid">
+          <div class="stat-cell"><b id="cumWrong">0</b><span>記録中の間違い</span></div>
+          <div class="stat-cell"><b id="cumAttempts">0</b><span>クイズ回数</span></div>
+          <div class="stat-cell"><b id="cumRate">—</b><span>通算正答率</span></div>
+        </div>
+        <p style="margin-top:12px;font-size:12.5px;color:var(--muted)">記録はこの端末のブラウザに自動保存されます。ページを閉じても、間違えた問題・読了・保存ポイントは残ります（同じ端末・同じブラウザでの利用が前提です）。</p>
+      </div>
+      <div class="sec-head"><h2>前回の結果</h2><p id="lastResultText">まだ解いていません</p></div>
+    </div>
+    <div id="quizPlay" style="display:none">
+      <div class="q-meta"><span id="qStep">問題 1 / 10</span><span id="qScoreLive">正解 0</span></div>
+      <div class="q-progress"><i id="qBar" style="width:10%"></i></div>
+      <div class="q-card" id="qCard"></div>
+    </div>
+    <div id="quizResult" style="display:none"></div>
+  </section>
+
+  <!-- WRONG -->
+  <section class="view" id="view-wrong">
+    <div class="sec-head"><h2>間違えた問題</h2><p>自動で記録され、閉じても残ります ／ 復習で正解すると外れます</p></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+      <button class="btn btn-red" id="reviewWrongBtn2">間違えた問題だけで復習する</button>
+      <button class="btn btn-outline" id="clearWrongBtn">記録をすべて消す</button>
+    </div>
+    <div id="wrongList" style="margin-top:8px"></div>
+  </section>
+
+  <!-- BOOKMARKS -->
+  <section class="view" id="view-bookmarks">
+    <div class="sec-head"><h2>保存したポイント</h2><p>クイズ解説で「保存」した要点がここに貯まります</p></div>
+    <div id="bmList"></div>
+  </section>
+
+  <!-- GRADES -->
+  <section class="view" id="view-grades">
+    <div class="sec-head"><h2>重要度グレードの見方</h2><p>実務頻度・土台度・入社までの優先度・顧客との会話に出る確率で総合判定</p></div>
+    <div class="legend">
+      <div class="legend-box">
+        <div class="legend-grades"><span class="grade g-aplus">A+</span><span class="grade g-a">A</span><span class="grade g-aminus">A−</span></div>
+        <h4>最優先 — ノートに写す範囲</h4>
+        <p>実務で毎週使う土台。就寝前の紙ノートに写すのはこのゾーンだけに絞ります。A+は「これが分からないと次が積めない」もの。</p>
+      </div>
+      <div class="legend-box">
+        <div class="legend-grades"><span class="grade g-bplus">B+</span><span class="grade g-b">B</span></div>
+        <h4>重点 — ここまでが学習範囲</h4>
+        <p>アプリで重点的に学ぶのは <b>A+〜Bまで</b>。顧客との会話や資格・実務の判断で効いてくる層です。レッスンとクイズの中心はここです。</p>
+      </div>
+      <div class="legend-box">
+        <div class="legend-grades"><span class="grade g-bminus">B−</span><span class="grade" style="background:var(--surface2);border:1px solid var(--line);color:var(--muted)">C+〜C−</span></div>
+        <h4>参考 — 目を通すだけ</h4>
+        <p>B−以下は「存在を知っていれば十分」。深追いせず、必要になったら調べる前提でOKです。初期表示では絞り込んでいます。</p>
+      </div>
+    </div>
+    <div class="detail" style="margin-top:16px">
+      <h3 style="margin-top:0;border:0;padding:0">このアプリの回し方</h3>
+      <p><b>1. 夜に開く（3分）</b> — ホームの「今夜ノートに写す分」だけ見て、紙ノートへ3行写す。スマホはそのまま寝室の外へ。</p>
+      <p><b>2. まとまった日に解く（10分）</b> — クイズ10問。間違えた問題は解説の「保存ポイント」に貯めて、週1回見返す。</p>
+      <p><b>3. 気になる分野を深掘る</b> — 「学ぶ」タブで分野を絞り、<span class="key">赤字の重要語</span>を中心に読む。他業界ではどう見えるか、まで入れてあります。</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>学習アプリ — 金融・不動産・税務・経済学・経営学・AI実務</span>
+    <span>ホーム画面に追加すれば、アイコンから1タップで開けます</span>
+  </footer>
+</main>
+
+<nav class="bottombar" aria-label="メインナビ">
+  <div class="bottombar-in">
+    <button class="tab btab active" data-view="home"><span class="bt-ic">今</span>ホーム</button>
+    <button class="tab btab" data-view="learn"><span class="bt-ic">読</span>学ぶ</button>
+    <button class="tab btab" data-view="quiz"><span class="bt-ic">問</span>問題</button>
+    <button class="tab btab" data-view="wrong"><span class="bt-ic">誤</span>間違い<span class="badge" id="wrongTabBadge" style="display:none">0</span></button>
+    <button class="tab btab" data-view="bookmarks"><span class="bt-ic">保</span>保存</button>
+    <button class="tab btab" data-view="grades"><span class="bt-ic">級</span>重要度</button>
+  </div>
+</nav>
+
+<script>
+var FIELDS=[
+  {id:"finance",name:"金融",icon:"¥"},
+  {id:"estate",name:"不動産",icon:"⌂"},
+  {id:"tax",name:"税務",icon:"税"},
+  {id:"econ",name:"経済学",icon:"↗"},
+  {id:"mgmt",name:"経営学",icon:"▦"},
+  {id:"ai",name:"AI実務",icon:"AI"}
+];
+function fieldName(id){for(var i=0;i<FIELDS.length;i++)if(FIELDS[i].id===id)return FIELDS[i].name;return id;}
+function gradeClass(g){return {"A+":"g-aplus","A":"g-a","A-":"g-aminus","B+":"g-bplus","B":"g-b","B-":"g-bminus"}[g]||"g-c";}
+var GRADE_RANK={"A+":0,"A":1,"A-":2,"B+":3,"B":4,"B-":5,"C+":6,"C":7,"C-":8};
+function isFocus(g){return GRADE_RANK[g]<=4;}
+
+var LESSONS=[
+{id:"fin1",field:"finance",grade:"A+",title:"金利は「お金のレンタル料」— 政策金利から住宅ローンまで",mins:5,summary:"日銀の政策金利が、短プラ・変動金利・あなたの将来の顧客の月返済にどう伝わるか。すべての土台です。",body:"<h3>まず結論</h3><p>金利とは<span class='key'>お金を借りるためのレンタル料</span>です。貸す側は「将来返ってくるか分からないリスク」と「その間、自分が使えない不便さ」の対価として金利を受け取ります。</p><h3>金利が決まる3つの層</h3><ul><li><span class='key'>政策金利</span>：中央銀行（日銀）が決める一番下の土台。銀行同士のお金の貸し借りの目安。</li><li><span class='key'>短期プライムレート（短プラ）</span>：銀行が優良企業に短期で貸すときの基準金利。政策金利の動きに連動しやすい。</li><li>住宅ローンの<span class='key'>変動金利</span>：多くの銀行で短プラに連動する仕組み。だから日銀の会合が不動産の相談に直結します。</li></ul><h3>他業界ではどう見えるか</h3><p>製造業にとって金利上昇は設備投資のハードル上げ、株式市場では「将来利益の現在価値が下がる」要因として株価に効きます。同じニュースでも、立場で意味が変わるのが金利です。</p><div class='callout'><b>実務の型</b><p>顧客に金利を説明するときは「金利そのもの」より「<span class='key'>月返済がどう変わるか</span>」に翻訳する。数字→生活への影響、の順で話すと伝わります。</p></div>"},
+{id:"fin2",field:"finance",grade:"A",title:"複利と72の法則 — 時間が味方になる仕組み",mins:4,summary:"利息が利息を生む複利の威力と、元本が2倍になる年数を一瞬で出す「72の法則」。",body:"<h3>単利と複利の差</h3><p><span class='key'>単利</span>は元本だけに利息がつく方式、<span class='key'>複利</span>は利息も元本に組み入れて次期の利息を計算する方式です。期間が長いほど差は爆発的に開きます。</p><div class='formula'>72の法則： 72 ÷ 年利（%） ≒ 元本が2倍になる年数</div><p>例：年利3%なら約24年、年利6%なら約12年で2倍。逆に借金も同じ速さで膨らむので、ローンの金利比較でも使えます。</p><h3>不動産との接続</h3><p>資産形成の相談では「利回り」だけでなく<span class='key'>期間 × 複利</span>で考えるのが基本。早く始めること自体が戦略になります。</p>"},
+{id:"fin3",field:"finance",grade:"A-",title:"リスクとリターンは表裏一体",mins:4,summary:"「元本保証で高利回り」が存在しない理由。リスクプレミアムの考え方を掴みます。",body:"<h3>核心</h3><p>高いリターンが期待できるものは、裏側で<span class='key'>価格が大きく上下するリスク</span>を引き受けています。安全資産より高い利回りが付く分を<span class='key'>リスクプレミアム</span>と呼びます。</p><h3>見抜く視点</h3><ul><li>「元本保証＋年利10%」は仕組みとして矛盾。まず疑う。</li><li>リスクは「危なさ」ではなく<span class='key'>結果のブレ幅</span>。上にも下にもブレます。</li><li>分散はブレを小さくする技術。1つに集中させない。</li></ul><p>不動産でも同じです。利回りが高い物件は、空室・修繕・立地のどこかでリスクを引き受けています。</p>"},
+{id:"fin4",field:"finance",grade:"B+",title:"債券価格と金利はシーソーの関係",mins:5,summary:"金利が上がると債券価格が下がる。この逆相関はニュース読みの基本装備です。",body:"<h3>なぜ逆に動くか</h3><p>金利1%の債券を持っているときに市場金利が2%へ上がると、新発債の方がお得なので、古い債券は<span class='key'>値下げしないと売れません</span>。だから<span class='key'>金利↑ → 債券価格↓</span>、逆もまた真です。</p><h3>ニュースへの応用</h3><p>「長期金利が上昇」と聞いたら、債券を持つ銀行や保険会社の含み損、住宅ローンの固定金利への波及まで連想できるようになります。金利の話は常に3手先まで読むのがコツです。</p>"},
+{id:"est1",field:"estate",grade:"A+",title:"物件を見る3点セット：立地・利回り・キャッシュフロー",mins:5,summary:"不動産の価値判断の最重要フレーム。数字の前に「場所」、数字は「手残り」まで見る。",body:"<h3>結論から</h3><p>不動産は<span class='key'>立地が9割</span>と言われます。建物は直せますが、場所は変えられません。その上で数字を2段で見ます。</p><ul><li><span class='key'>利回り</span>：投資額に対して年間いくら戻るかの物差し。</li><li><span class='key'>キャッシュフロー</span>：家賃からローン返済・管理費・税金を引いて、実際に手元に残るお金。</li></ul><h3>陥りやすい罠</h3><p>利回りが高くても、空室が続けばキャッシュフローはマイナスになります。「利回り＝儲け」ではなく「<span class='key'>手残りがプラスか</span>」で判断するのが実務の型です。</p><div class='callout'><b>実務の型</b><p>相談では 立地（将来も人が集まるか）→ 利回り → 手残り の順に話すと、顧客が自分の生活に引き寄せて考えられます。</p></div>"},
+{id:"est2",field:"estate",grade:"A",title:"表面利回りと実質利回り — 広告の数字を疑う目",mins:4,summary:"表面10%が実質6%になる理由。諸経費を入れて初めて比較できる数字になります。",body:"<h3>2つの利回り</h3><div class='formula'>表面利回り ＝ 年間家賃 ÷ 物件価格 × 100</div><div class='formula'>実質利回り ＝ （年間家賃 − 諸経費）÷（物件価格 ＋ 購入諸経費）× 100</div><p><span class='key'>表面利回り</span>は経費ゼロ前提の「見かけ」の数字。<span class='key'>実質利回り</span>は管理費・固定資産税・修繕積立などを引いた現実の数字です。広告に載るのはほぼ表面利回りなので、そのまま比べると判断を誤ります。</p><h3>他業界との共通点</h3><p>経営学の「売上と利益」の違いと全く同じ構造です。入口の数字ではなく、<span class='key'>コストを引いた後</span>で比べる——これは全分野共通の思考法です。</p>"},
+{id:"est3",field:"estate",grade:"B+",title:"レバレッジ — 少ない自己資金で大きく運用する両刃の剣",mins:5,summary:"ローンを使うと効率が上がる代わりに、空振り時の痛みも増幅されます。",body:"<h3>仕組み</h3><p><span class='key'>レバレッジ（てこの原理）</span>とは、借入を使って自己資金以上の資産を動かすこと。自己資金500万円＋借入4,500万円で5,000万円の物件を持つ、が典型です。</p><ul><li>うまくいく時：リターンが自己資金比で大きくなる。</li><li>空振りの時：空室でも返済は続く。<span class='key'>損失も増幅</span>される。</li></ul><p>レバレッジは「加速装置」であって「魔法」ではありません。家賃が途絶えたとき何か月耐えられるか、という<span class='key'>守りの計算</span>とセットで語るのがプロの説明です。</p>"},
+{id:"tax1",field:"tax",grade:"A",title:"不動産にかかる税金マップ：買う時・持つ時・売る時",mins:5,summary:"税務の新分野・第一歩。不動産は取引の各場面で税金がかかる「税金のデパート」です。",body:"<h3>場面ごとに整理する</h3><ul><li><b>買う時</b>：<span class='key'>不動産取得税</span>（都道府県税）、登録免許税、印紙税。</li><li><b>持つ時</b>：<span class='key'>固定資産税</span>（標準税率1.4%、市町村税）と都市計画税。毎年かかる。</li><li><b>売る時</b>：譲渡所得への所得税・住民税（次のレッスンで詳しく）。</li><li><b>貸す時</b>：家賃収入は不動産所得として所得税の対象。</li></ul><h3>なぜ大事か</h3><p>利回り計算で税金を入れ忘れると、手残りの見立てが丸ごと狂います。顧客の「結局いくら残るの？」に答えるには、この<span class='key'>場面マップ</span>が土台になります。</p><div class='callout'><b>実務の型</b><p>税金の説明は金額より先に「いつ・何に・誰に払うか」の地図を渡す。具体額は税理士確認が原則、と線引きもセットで。</p></div>"},
+{id:"tax2",field:"tax",grade:"A-",title:"譲渡所得 — 保有5年で税率が大きく変わる",mins:5,summary:"不動産を売って出た利益への課税。長期20.315%／短期39.63%の差は相談の頻出ポイント。",body:"<h3>計算の型</h3><div class='formula'>譲渡所得 ＝ 売却価格 −（取得費 ＋ 譲渡費用）</div><p>この所得に、保有期間で税率が変わります。</p><ul><li><span class='key'>長期譲渡所得</span>（譲渡した年の1月1日で保有5年超）：税率 <span class='key'>20.315%</span></li><li><span class='key'>短期譲渡所得</span>（5年以下）：税率 <span class='key'>39.63%</span></li></ul><p>約2倍の差があるため、「売るタイミング」は税金面でも重要な判断になります。マイホームには3,000万円特別控除などの特例もあり、適用可否で手残りが大きく変わります。</p>"},
+{id:"tax3",field:"tax",grade:"B+",title:"累進課税 — 所得が増えるほど税率が上がる階段構造",mins:4,summary:"「年収が上がったら税金で損する」は誤解。超えた分だけに高い税率がかかる仕組みです。",body:"<h3>仕組み</h3><p>所得税は<span class='key'>超過累進課税</span>。所得を階段状の区分に分け、<span class='key'>各区分を超えた部分にだけ</span>高い税率が適用されます。</p><p>よくある誤解が「年収の壁を超えると手取りが減る」。実際は税率が上がるのは超えた部分だけで、手取りが逆転することは（税金だけでは）起きません。</p><h3>不動産との接続</h3><p>家賃収入（不動産所得）は給与所得などと<span class='key'>合算</span>して課税されます（総合課税）。副収入の相談では、この合算の発想が欠かせません。</p>"},
+{id:"eco1",field:"econ",grade:"A+",title:"需要と供給 — すべての価格はここから始まる",mins:4,summary:"経済学の絶対的な土台。価格は「欲しい人」と「売りたい人」の綱引きで決まります。",body:"<h3>基本の動き</h3><ul><li><span class='key'>需要</span>：価格が下がるほど買いたい量は増える。</li><li><span class='key'>供給</span>：価格が上がるほど売りたい量は増える。</li><li>両者が一致する点が<span class='key'>均衡価格</span>。</li></ul><h3>不動産への応用</h3><p>人気エリアの地価上昇は、需要（住みたい人）に対して供給（土地）が増やせないから起きます。土地は<span class='key'>供給が硬直的</span>——この一言で多くの地価ニュースが読めるようになります。</p><h3>金利との接続</h3><p>お金の価格＝金利も、実は需要と供給で決まる価格の一種です。金融と経済学はここでつながります。</p>"},
+{id:"eco2",field:"econ",grade:"A",title:"インフレとデフレ — お金の価値が変わる現象",mins:4,summary:"物価の持続的な上昇・下落。金利・給料・ローンへの影響まで一気に見通します。",body:"<h3>定義</h3><p><span class='key'>インフレ</span>は物価が持続的に上がり、お金の価値が下がる状態。<span class='key'>デフレ</span>はその逆です。判断材料の代表が<span class='key'>消費者物価指数（CPI）</span>。</p><h3>誰が得して誰が困るか</h3><ul><li>インフレ：借金は実質的に目減りする（借りた側に有利）。現金のまま持つと価値が下がる。</li><li>デフレ：現金の価値は上がるが、給料や売上も下がりやすい。</li></ul><p>中央銀行が金利を動かす最大の理由は、この物価の安定です。金融政策のニュースは「インフレを冷ます／温める」の視点で読むと整理できます。</p>"},
+{id:"eco3",field:"econ",grade:"B",title:"GDPは何を測っているか",mins:4,summary:"国内で生み出された付加価値の合計。「成長率」のニュースを読むための物差し。",body:"<h3>定義</h3><p><span class='key'>GDP（国内総生産）</span>は、一定期間に国内で新たに生み出された<span class='key'>付加価値</span>の合計です。中古品の売買は「新たな価値」を生まないので原則カウントされません（仲介手数料などサービス分は含まれます）。</p><h3>読み方のコツ</h3><ul><li>成長率は「前期比」か「前年同期比」かを確認する。</li><li>名目（金額そのまま）と実質（物価変動を除いた量）で意味が違う。</li></ul><p>不動産業界では、GDPのうち住宅投資の動きが市況感覚に直結します。</p>"},
+{id:"mgm1",field:"mgmt",grade:"A+",title:"財務3表の役割分担：PL・BS・CF",mins:5,summary:"経営者の相談相手になるための最重要装備。3つの表は「稼ぐ力・財産・お金の流れ」を分担します。",body:"<h3>3表の役割</h3><ul><li><span class='key'>PL（損益計算書）</span>：一定期間にいくら稼いだか（売上−費用＝利益）。</li><li><span class='key'>BS（貸借対照表）</span>：ある時点で何を持ち、何を負っているか（資産＝負債＋純資産）。</li><li><span class='key'>CF（キャッシュフロー計算書）</span>：お金が実際にどう出入りしたか。</li></ul><h3>なぜ3つも要るのか</h3><p>PLで黒字でも、売掛金が回収できなければお金が尽きて倒産します（<span class='key'>黒字倒産</span>）。「利益」と「お金」は別物——ここを押さえると経営者との会話の土台ができます。</p><div class='callout'><b>実務の型</b><p>経営者の顧客には、不動産の話の前に「今期のPLの山場はどこですか」と聞けるだけで信頼の入口が変わります。</p></div>"},
+{id:"mgm2",field:"mgmt",grade:"A-",title:"固定費と変動費、損益分岐点",mins:4,summary:"売上がいくらで利益がゼロになるか。事業の「安全ライン」を読む力です。",body:"<h3>費用の2分類</h3><ul><li><span class='key'>固定費</span>：売上に関係なくかかる費用（家賃、人件費の基本給など）。</li><li><span class='key'>変動費</span>：売上に比例して増える費用（仕入、材料費など）。</li></ul><div class='formula'>損益分岐点売上高 ＝ 固定費 ÷（1 − 変動費率）</div><p><span class='key'>損益分岐点</span>を超えた売上が利益になります。不動産賃貸でも同じで、固定費（ローン返済・税金）を家賃収入が上回るラインが安全ラインです。分野をまたぐ共通の型です。</p>"},
+{id:"mgm3",field:"mgmt",grade:"B+",title:"SWOT分析 — 「内と外 × プラスとマイナス」の整理術",mins:4,summary:"強み・弱み・機会・脅威。混ぜて考えがちな要素を4象限に仕分ける古典フレーム。",body:"<h3>4つの箱</h3><ul><li><span class='key'>強み（S）／弱み（W）</span>：自分たち内部の要因。変えられる。</li><li><span class='key'>機会（O）／脅威（T）</span>：市場など外部の要因。変えられないが備えられる。</li></ul><h3>よくある間違い</h3><p>「駅近」を強みに入れるのは物件の話としては正解でも、企業分析では外部（立地市場）の話と混同しやすい。<span class='key'>内部か外部か</span>の仕分けがSWOTの肝です。配属エリア研究でも、エリアの要因（外部）と自社の要因（内部）を分けて整理できます。</p>"},
+{id:"ai1",field:"ai",grade:"A",title:"生成AIは「次にくる言葉の予測」で文章を作る",mins:4,summary:"AI実務の土台。大規模言語モデル（LLM）の仕組みを一言で説明できるようになります。",body:"<h3>仕組みの芯</h3><p>ChatGPTなどの<span class='key'>LLM（大規模言語モデル）</span>は、膨大な文章で学習し、「次にくる確率が高い言葉」を予測してつなげています。理解して答えているというより、<span class='key'>超高精度のパターン予測</span>です。</p><h3>だから起きること</h3><ul><li>もっともらしい嘘（<span class='key'>ハルシネーション</span>）が出る。数字や固有名詞は必ず裏取りする。</li><li>指示の出し方で出力が大きく変わる。曖昧な指示は曖昧な結果に。</li></ul><p>金融・不動産の実務では「下書きと整理はAI、最終確認は人間」が安全な分担です。</p>"},
+{id:"ai2",field:"ai",grade:"A-",title:"プロンプトは「指示書」— 役割・条件・形式を指定する",mins:4,summary:"AIの出力品質は指示の具体性で決まります。実務で使える型を覚えます。",body:"<h3>効く3点セット</h3><ul><li><span class='key'>役割</span>：「あなたは不動産営業の先輩です」と立場を指定する。</li><li><span class='key'>条件</span>：対象読者、前提、禁止事項をはっきり書く。</li><li><span class='key'>形式</span>：箇条書き／表／何文字以内、など出力の形を指定する。</li></ul><h3>実務への応用</h3><p>物件説明文の下書き、顧客へのメール文面の整理、決算短信の要約など、「型がある文章」ほどAIが効きます。反対に、固有の数字の判断は人間が担う——この線引きが<span class='key'>AIリテラシー</span>の芯です。</p>"},
+{id:"ai3",field:"ai",grade:"B+",title:"AIエージェント — 「答えるAI」から「動くAI」へ",mins:4,summary:"ツールを使って自律的に作業を進めるAI。金融・不動産でも導入と規制整備が進む領域です。",body:"<h3>何が違うのか</h3><p>通常の生成AIは質問に答えるだけですが、<span class='key'>AIエージェント</span>は目標を与えると、自分で手順を組み立て、検索や計算などの<span class='key'>ツールを使いながら</span>タスクを完了まで進めます。</p><h3>実務での見方</h3><ul><li>効く場面：定型の調査、資料のたたき台作成、データ整理。</li><li>注意点：勝手に進む分、<span class='key'>途中の確認ポイント</span>と権限の範囲設定が重要。</li></ul><p>金融業界では融資審査や顧客対応へのAI活用が広がり、各国で監督の枠組みづくりも進んでいます。「便利さ」と「管理」の両面で語れることが実務の強みになります。</p>"}
+];
+
+var QUESTIONS=[
+{field:"finance",grade:"A+",q:"日銀が政策金利を引き上げた場合、住宅ローンの変動金利への影響として最も適切なのはどれか。",choices:["変動金利は固定金利に連動するため、政策金利の影響は受けない","多くの銀行で変動金利の基準となる短プラが上がりやすく、変動金利も上昇方向に動きやすい","政策金利が上がると銀行の貸出余力が増え、変動金利は下がるのが通例である","変動金利は契約時に将来分まで確定しているため、一切変わらない"],answer:1,explain:"変動金利は多くの銀行で短期プライムレート（短プラ）を基準にしており、短プラは政策金利の動きに連動しやすい構造です。固定金利は長期金利（国債市場）の影響を強く受けます。",point:"政策金利 → 短プラ → 変動金利、という伝わる順番を押さえる。"},
+{field:"finance",grade:"A",q:"年利4%で運用した場合、「72の法則」で元本が約2倍になる年数はどれか。",choices:["約36年","約24年","約18年","約12年"],answer:2,explain:"72 ÷ 4 ＝ 18年。72の法則は複利で元本が2倍になる概算年数を出す近似式です。年利が大きいほど期間は短くなります。",point:"72の法則：72 ÷ 年利（%）≒ 2倍になる年数。借金にも同じ速さで効く。"},
+{field:"finance",grade:"B+",q:"市場金利が上昇したとき、既に発行されている固定利付債券の価格はどうなるか。",choices:["金利と価格は連動するため上昇する","より有利な新発債に人気が移り、価格は下落する","金利の変動は債券価格に影響しない","発行体の格付けが自動的に上がるため価格は維持される"],answer:1,explain:"金利が上がると新発債の方が有利になるため、既発債は値下げしないと買い手がつきません。「金利↑→債券価格↓」の逆相関が原則です。",point:"債券価格と金利はシーソー。長期金利上昇のニュースは保有者の含み損とセットで読む。"},
+{field:"finance",grade:"A-",q:"「元本保証で年利12%」という投資話の問題点として、最も本質的な指摘はどれか。",choices:["年利12%は法律で禁止されている上限を超えている","リスクとリターンは表裏一体であり、元本保証（低リスク）と高利回りは仕組みとして矛盾する","元本保証商品は銀行でしか扱えないため、銀行以外が勧める時点で違法である","過去に同じ利回りの商品が存在しないため、実績の裏付けがない"],answer:1,explain:"安全資産より高い利回りには、必ずリスクプレミアム（リスクを引き受ける対価）が含まれます。低リスクと高リターンの両立をうたう話は、仕組み自体が矛盾しています。",point:"リスクプレミアム：高い利回り＝裏で何かのリスクを引き受けている。両立のうたい文句は疑う。"},
+{field:"estate",grade:"A+",q:"投資用不動産の判断で「利回りが高い」ことだけを根拠にするのが危険な理由はどれか。",choices:["利回りは法律で表示が禁止されている指標だから","利回りは物件価格の変動を織り込んでおり、常に正確だから","空室や経費で実際の手残り（キャッシュフロー）がマイナスになる場合があるから","利回りは居住用物件にしか使えない計算式だから"],answer:2,explain:"利回りは入口の物差しにすぎません。空室が続けば家賃が入らず、経費と返済だけが出ていき、手残りはマイナスになります。判断はキャッシュフローまで見て初めて成立します。",point:"利回り → 手残り（キャッシュフロー）の順で見る。入口の数字で決めない。"},
+{field:"estate",grade:"A",q:"年間家賃120万円、物件価格2,000万円、管理費等の諸経費が年24万円の場合、表面利回りと実質利回り（購入諸経費は除く簡易計算）の組み合わせとして正しいのはどれか。",choices:["表面6.0%／実質4.8%","表面6.0%／実質6.0%","表面4.8%／実質6.0%","表面5.0%／実質5.5%"],answer:0,explain:"表面 ＝ 120 ÷ 2,000 ＝ 6.0%。実質 ＝ （120−24）÷ 2,000 ＝ 4.8%。実質利回りは経費を引くため、必ず表面より低くなります。実質が表面以上になる選択肢は計算上ありえません。",point:"実質利回りは必ず表面利回りより低い。広告の数字はほぼ表面利回り。"},
+{field:"estate",grade:"B+",q:"レバレッジを効かせた不動産投資で、最も警戒すべき局面はどれか。",choices:["金利が下がって返済負担が軽くなる局面","空室で家賃収入が途絶えてもローン返済が続く局面","物件価格が上昇して含み益が出る局面","自己資金の比率が高くなりすぎる局面"],answer:1,explain:"レバレッジは利益も損失も増幅します。家賃が入らない期間も返済は止まらないため、何か月耐えられるかという守りの計算が不可欠です。",point:"レバレッジは加速装置。空振り時に何か月耐えられるかが守りの計算。"},
+{field:"tax",grade:"A",q:"不動産を取得したときに一度だけ課される都道府県税はどれか。",choices:["固定資産税","都市計画税","不動産取得税","登録免許税"],answer:2,explain:"不動産取得税は取得時に一度だけ課される都道府県税です。固定資産税は保有中に毎年かかる市町村税、登録免許税は登記にかかる国税で、場面の整理がポイントです。",point:"買う時＝不動産取得税／持つ時＝固定資産税（毎年）。場面マップで覚える。"},
+{field:"tax",grade:"A-",q:"取得から6年保有した土地を売却して譲渡益が出た場合（譲渡した年の1月1日時点で保有5年超）、適用される税率に最も近いのはどれか。",choices:["約39.63%（短期譲渡所得の税率）","約20.315%（長期譲渡所得の税率）","一律10%（土地の売却は特別税率）","非課税（6年保有すれば免税）"],answer:1,explain:"保有期間が譲渡した年の1月1日時点で5年を超えると長期譲渡所得となり、税率は20.315%。5年以下は短期で39.63%と、約2倍の差があります。",point:"長期20.315%／短期39.63%。判定は「譲渡した年の1月1日時点で5年超か」。"},
+{field:"tax",grade:"B+",q:"所得税の超過累進課税について、正しい説明はどれか。",choices:["所得全体に、その区分の最高税率がそのまま適用される","区分を超えた部分にだけ高い税率が適用されるため、税金だけの理由で手取りが逆転することはない","税率は所得ではなく職業によって決まる","累進課税は法人の税金にのみ適用される制度である"],answer:1,explain:"超過累進では、所得を階段状に分け、各区分を超えた部分にのみ高い税率がかかります。「壁を超えると損」は代表的な誤解です。",point:"超過累進＝超えた分だけ高い税率。「年収の壁で手取り逆転」は誤解。"},
+{field:"econ",grade:"A+",q:"人気エリアで地価が上がり続ける構造を、需要と供給で最も適切に説明したものはどれか。",choices:["供給が需要を上回っているため、競争で価格が押し上げられる","住みたい人の需要に対して、土地は増やせず供給が硬直的なため、価格が上がりやすい","地価は行政が一律に決めるため、市場要因は関係しない","需要が減ると価格が上がるという逆相関が働いている"],answer:1,explain:"土地は場所ごとに量を増やせない「供給が硬直的」な財です。需要が集まる場所では、価格調整でしか需給が一致しません。",point:"土地は供給が硬直的。人気エリアの地価上昇はこの一言で説明できる。"},
+{field:"econ",grade:"A",q:"インフレが進む局面で、一般に「実質的に有利」になりやすいのは誰か。",choices:["現金をそのまま持ち続ける人","固定金利でお金を貸している人","固定金利でお金を借りている人","年金だけで生活し資産を持たない人"],answer:2,explain:"インフレではお金の価値が下がるため、返済する借金の実質的な重さも軽くなります。逆に現金保有や固定金利の貸し手は価値の目減りを被ります。",point:"インフレ＝借り手に有利・現金保有に不利。デフレはその逆。"},
+{field:"econ",grade:"B",q:"GDP（国内総生産）に原則として含まれないものはどれか。",choices:["新築住宅の建設（住宅投資）","不動産仲介の手数料収入","中古住宅そのものの売買代金","国内で提供された家事代行サービスの料金"],answer:2,explain:"GDPは「新たに生み出された付加価値」の合計です。中古品の売買は所有権が移るだけで新たな価値は生まないため、その代金自体は含まれません（仲介手数料などのサービス分は含まれます）。",point:"GDP＝新たに生まれた付加価値。中古の代金は×、仲介手数料は○。"},
+{field:"mgmt",grade:"A+",q:"PL（損益計算書）で黒字なのに倒産することがある（黒字倒産）。その主な理由はどれか。",choices:["PLの黒字は税金が免除されるため、資金繰りと無関係になるから","売上を計上しても売掛金の回収が滞れば、手元のお金が尽きるから","BSに資産が多すぎると自動的に倒産扱いになるから","黒字企業は銀行から融資を受けられなくなる決まりがあるから"],answer:1,explain:"利益とお金の動きは別物です。PLは発生ベース、資金繰りは現金ベース。回収が滞れば黒字でも支払いができず倒産します。だからCF（キャッシュフロー）を見る必要があります。",point:"利益≠お金。黒字倒産は「発生ベース」と「現金ベース」のズレで起きる。"},
+{field:"mgmt",grade:"A-",q:"固定費60万円／月、変動費率40%の事業の損益分岐点売上高（月額）はどれか。",choices:["月100万円","月150万円","月240万円","月60万円"],answer:0,explain:"損益分岐点売上高 ＝ 固定費 ÷（1 − 変動費率）＝ 60 ÷ 0.6 ＝ 100万円。この売上を超えた分が利益になります。",point:"損益分岐点 ＝ 固定費 ÷（1−変動費率）。超えた売上が利益になる。"},
+{field:"mgmt",grade:"B+",q:"SWOT分析で「近隣に大型商業施設が開業予定」はどの区分か。",choices:["強み（S）— 自社の内部要因","弱み（W）— 自社の内部要因","機会（O）— 外部環境のプラス要因","脅威（T）— 外部環境のマイナス要因"],answer:2,explain:"SWOTは内部（強み・弱み）と外部（機会・脅威）の仕分けが肝です。商業施設の開業は自分たちでは変えられない外部要因で、集客増が見込めるならプラスの「機会」です。",point:"SWOTの肝は内部か外部かの仕分け。外部のプラス＝機会（O）。"},
+{field:"ai",grade:"A",q:"生成AI（LLM）が「もっともらしい嘘（ハルシネーション）」をつく構造的な理由はどれか。",choices:["AIが意図的に利用者をだまそうとする設計だから","事実を検索して答えるのではなく、次にくる確率の高い言葉を予測して文章を生成するから","学習データがインターネット上の情報のみで構成されているから","利用者の入力が短い場合に限って発生する不具合だから"],answer:1,explain:"LLMは「次にくる確率が高い言葉」をつなげる予測モデルです。事実確認の仕組みを持たないため、流暢でも誤った内容を生成することがあります。数字や固有名詞は裏取りが必須です。",point:"LLMは予測モデル。流暢さと正確さは別。数字・固有名詞は必ず裏取り。"},
+{field:"ai",grade:"A-",q:"AIへの指示（プロンプト）で出力品質を上げる工夫として、最も効果が薄いものはどれか。",choices:["「不動産営業の先輩として」と役割を指定する","対象読者や前提条件を具体的に書く","出力形式（表・箇条書き・文字数）を指定する","「すごい文章を書いて」のように抽象的な強調語を重ねる"],answer:3,explain:"役割・条件・形式の具体指定は出力のブレを減らします。一方、抽象的な強調語は判断基準を与えないため、品質への効果は限定的です。",point:"プロンプトの3点セット：役割・条件・形式。具体性が品質を決める。"},
+{field:"ai",grade:"B+",q:"AIエージェントが通常の生成AIと最も異なる点はどれか。",choices:["文章の生成速度が速い点","目標を与えると手順を組み立て、検索や計算などのツールを使いながらタスクを進める点","学習データの量が多い点","スマートフォンでも利用できる点"],answer:1,explain:"AIエージェントの本質は「答える」から「動く」への変化です。ツール使用と自律的な手順実行が特徴で、その分、確認ポイントと権限設定の管理が重要になります。",point:"エージェント＝答えるAI＋ツール＋自律実行。管理の設計がセット。"}
+];
+
+/* State — persisted on this device (localStorage) */
+var STORE_KEY="gakushu-app-v2";
+var doneSet={};
+var bookmarks=[];
+var wrongHist=[]; /* [{qi, picked, count, lastAt}] */
+var stats={attempts:0, answered:0, correct:0};
+var lastScore=null;
+var lastLabel="";
+var inProgress=null; /* {field, qis:[], idx, score, wrongQis:[], answers:[]} */
+var maskRevealed={}; /* maskId -> true when peeled */
+var storageOK=true;
+function saveState(){
+  if(!storageOK)return;
+  try{
+    localStorage.setItem(STORE_KEY,JSON.stringify({done:doneSet,bookmarks:bookmarks,wrong:wrongHist,stats:stats,lastScore:lastScore,lastLabel:lastLabel,prog:inProgress,mask:maskRevealed}));
+  }catch(e){storageOK=false;}
+}
+function loadState(){
+  try{
+    var raw=localStorage.getItem(STORE_KEY);
+    if(!raw)return;
+    var s=JSON.parse(raw);
+    if(s.done)doneSet=s.done;
+    if(s.bookmarks)bookmarks=s.bookmarks;
+    if(s.wrong)wrongHist=s.wrong;
+    if(s.stats)stats=s.stats;
+    if(typeof s.lastScore!=="undefined")lastScore=s.lastScore;
+    if(s.lastLabel)lastLabel=s.lastLabel;
+    if(s.prog)inProgress=s.prog;
+    if(s.mask)maskRevealed=s.mask;
+  }catch(e){storageOK=false;}
+}
+loadState();
+
+var currentField="all";
+function $(id){return document.getElementById(id);}
+function qIndex(q){for(var i=0;i<QUESTIONS.length;i++)if(QUESTIONS[i]===q)return i;for(var j=0;j<QUESTIONS.length;j++)if(QUESTIONS[j].q===q.q)return j;return -1;}
+function fmtDate(ts){var d=new Date(ts);return (d.getMonth()+1)+"/"+d.getDate();}
+
+/* Tabs (bottom bar) */
+var tabs=document.querySelectorAll(".tab");
+tabs.forEach(function(t){
+  t.addEventListener("click",function(){
+    goView(t.getAttribute("data-view"));
+  });
+});
+function goView(name){
+  tabs.forEach(function(x){x.classList.toggle("active",x.getAttribute("data-view")===name);});
+  document.querySelectorAll(".view").forEach(function(v){v.classList.remove("active");});
+  var el=$("view-"+name);if(el)el.classList.add("active");
+  if(name==="learn"){hideDetail();}
+  if(name==="wrong"){renderWrong();}
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* Chips */
+function buildChips(containerId,onPick){
+  var c=$(containerId);if(!c)return;c.innerHTML="";
+  var all=document.createElement("button");all.className="chip"+(currentField==="all"?" active":"");all.textContent="すべて";
+  all.addEventListener("click",function(){currentField="all";onPick();refreshChips();});
+  c.appendChild(all);
+  FIELDS.forEach(function(f){
+    var n=LESSONS.filter(function(l){return l.field===f.id;}).length;
+    var b=document.createElement("button");b.className="chip"+(currentField===f.id?" active":"");
+    b.innerHTML=f.name+"<small>"+n+"本</small>";b.setAttribute("data-field",f.id);
+    b.addEventListener("click",function(){currentField=f.id;onPick();refreshChips();});
+    c.appendChild(b);
+  });
+}
+function refreshChips(){
+  ["homeChips","learnChips"].forEach(function(id){
+    var c=$(id);if(!c)return;
+    c.querySelectorAll(".chip").forEach(function(ch,i){
+      var f=i===0?"all":ch.getAttribute("data-field");
+      ch.classList.toggle("active",f===currentField);
+    });
+  });
+  renderHome();renderLearn();
+}
+buildChips("homeChips",function(){});
+buildChips("learnChips",function(){});
+
+/* Lesson rows */
+function cardHTML(l){
+  var done=doneSet[l.id];
+  return "<span class='field'>"+fieldName(l.field)+"</span><span class='grade "+gradeClass(l.grade)+"'>"+l.grade+"</span>"
+    +"<h3>"+l.title+"</h3><p>"+l.summary+"</p>"
+    +"<div class='card-foot'><span>約"+l.mins+"分</span>"+(done?"<span class='done-badge'>読了済み</span>":"<b>読む →</b>")+"</div>";
+}
+function renderHome(){
+  var list=LESSONS.filter(function(l){return (currentField==="all"||l.field===currentField)&&isFocus(l.grade);});
+  list=list.slice().sort(function(a,b){return GRADE_RANK[a.grade]-GRADE_RANK[b.grade];}).slice(0,6);
+  var g=$("homeGrid");g.innerHTML="";
+  list.forEach(function(l){
+    var b=document.createElement("button");b.className="card";b.innerHTML=cardHTML(l);
+    b.addEventListener("click",function(){openLesson(l.id);});
+    g.appendChild(b);
+  });
+  var top=LESSONS.filter(function(l){return GRADE_RANK[l.grade]<=1;});
+  var dayIdx=Math.floor(Date.now()/86400000)%top.length;
+  var today=top[dayIdx];
+  $("heroTitle").textContent=today.title.split("—")[0].split("：")[0];
+  $("heroKicker").textContent="本日のテーマ — "+fieldName(today.field)+" ・ 重要度 "+today.grade;
+  $("heroText").textContent=today.summary;
+  $("nightList").innerHTML=top.slice(dayIdx,dayIdx+3).concat(top.slice(0,Math.max(0,dayIdx+3-top.length))).slice(0,3).map(function(l,i){
+    return "<li><span class='nl-num'>"+(i+1)+"</span><span class='nl-grade "+gradeClass(l.grade)+"'>"+l.grade+"</span><span>"+l.title+"</span></li>";
+  }).join("");
+  $("heroLearnBtn").onclick=function(){openLesson(today.id);};
+  var dn=new Date();
+  $("mastDate").textContent=(dn.getMonth()+1)+"月"+dn.getDate()+"日（"+"日月火水木金土"[dn.getDay()]+"）";
+}
+function renderLearn(){
+  var q=($("searchInput").value||"").trim();
+  var focus=$("focusToggle").checked;
+  var list=LESSONS.filter(function(l){
+    if(currentField!=="all"&&l.field!==currentField)return false;
+    if(focus&&!isFocus(l.grade))return false;
+    if(q&&(l.title+l.summary+fieldName(l.field)).indexOf(q)===-1)return false;
+    return true;
+  });
+  $("learnCount").textContent="レッスン一覧（"+list.length+"本）";
+  $("learnEmpty").style.display=list.length?"none":"block";
+  var g=$("learnGrid");g.innerHTML="";
+  list.forEach(function(l){
+    var b=document.createElement("button");b.className="card";b.innerHTML=cardHTML(l);
+    b.addEventListener("click",function(){openLesson(l.id);});
+    g.appendChild(b);
+  });
+}
+$("searchInput").addEventListener("input",renderLearn);
+$("focusToggle").addEventListener("change",renderLearn);
+
+/* ---- Mask (red-sheet) ---- */
+function applyMasks(scopeEls, prefix){
+  /* scopeEls: array of elements whose .key children become masks */
+  var n=0;
+  scopeEls.forEach(function(root){
+    if(!root)return;
+    root.querySelectorAll(".key").forEach(function(k){
+      var id=prefix+":"+(n++);
+      k.classList.add("mask");
+      k.setAttribute("data-mask-id",id);
+      k.setAttribute("role","button");
+      k.setAttribute("tabindex","0");
+      k.title="タップで表示／隠す";
+      syncMask(k,id);
+      k.addEventListener("click",function(){toggleMask(id);});
+      k.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleMask(id);}});
+    });
+  });
+  return n;
+}
+function syncMask(el,id){
+  var open=!!maskRevealed[id];
+  el.classList.toggle("revealed",open);
+  el.classList.toggle("masked",!open);
+  el.setAttribute("aria-label",open?"重要語（表示中）。タップで隠す":"重要語（隠れています）。タップで表示");
+}
+function refreshMaskEls(){
+  document.querySelectorAll(".mask").forEach(function(el){syncMask(el,el.getAttribute("data-mask-id"));});
+}
+function toggleMask(id){
+  if(maskRevealed[id])delete maskRevealed[id];else maskRevealed[id]=true;
+  saveState();refreshMaskEls();
+}
+function maskBarHTML(label){
+  return "<div class='mask-bar'><span class='mb-label'>"+label+"</span><span>重要語は付箋で隠れています。思い出してからタップで確認。</span><button data-mask-act='all-open'>全部剥がす</button><button data-mask-act='all-shut'>全部戻す</button></div>";
+}
+function wireMaskBar(container, prefix){
+  container.querySelectorAll("[data-mask-act]").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var open=btn.getAttribute("data-mask-act")==="all-open";
+      container.querySelectorAll(".mask").forEach(function(el){
+        var id=el.getAttribute("data-mask-id");
+        if(id.indexOf(prefix+":")!==0)return;
+        if(open)maskRevealed[id]=true;else delete maskRevealed[id];
+      });
+      saveState();refreshMaskEls();
+    });
+  });
+}
+var KEYTERMS=["政策金利","短期プライムレート","短プラ","変動金利","固定金利","72の法則","リスクプレミアム","元本保証","キャッシュフロー","手残り","表面利回り","実質利回り","レバレッジ","不動産取得税","固定資産税","都市計画税","登録免許税","長期譲渡所得","短期譲渡所得","20.315%","39.63%","超過累進課税","需要","供給","均衡価格","硬直的","インフレ","デフレ","消費者物価指数","CPI","GDP","付加価値","PL","BS","CF","黒字倒産","固定費","変動費","損益分岐点","SWOT","内部","外部","機会","LLM","ハルシネーション","予測","役割","条件","形式","AIエージェント","ツール"];
+function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function maskifyText(text, prefix){
+  var terms=KEYTERMS.slice().sort(function(a,b){return b.length-a.length;});
+  var out=escHtml(text);
+  terms.forEach(function(t){
+    var et=escHtml(t);
+    if(out.indexOf(et)===-1)return;
+    out=out.split(et).join("<span class='key'>"+et+"</span>");
+  });
+  return out;
+}
+
+/* Lesson detail */
+function openLesson(id){
+  var l=null;LESSONS.forEach(function(x){if(x.id===id)l=x;});
+  if(!l)return;
+  goView("learn");
+  $("learnList").style.display="none";
+  var d=$("lessonDetail");d.style.display="block";
+  d.innerHTML="<button class='back-btn' id='backBtn'>← 一覧に戻る</button>"
+    +"<article class='detail'><div style='display:flex;justify-content:space-between;gap:8px;align-items:center'><span style='font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--indigo)'>"+fieldName(l.field)+" ・ 約"+l.mins+"分</span><span class='grade "+gradeClass(l.grade)+"'>重要度 "+l.grade+"</span></div>"
+    +"<h2>"+l.title+"</h2><p class='lead'>"+l.summary+"</p>"
+    +maskBarHTML("暗記マスク")
+    +"<div id='lessonBody'>"+l.body+"</div>"
+    +"<div style='display:flex;gap:10px;flex-wrap:wrap;margin-top:22px'><button class='btn btn-teal' id='doneBtn'>"+(doneSet[l.id]?"読了済み":"読了にする")+"</button><button class='btn btn-outline' id='toQuizBtn'>この分野のクイズを解く →</button></div></article>";
+  applyMasks([$("lessonBody")],"L:"+l.id);
+  wireMaskBar(d,"L:"+l.id);
+  $("backBtn").addEventListener("click",hideDetail);
+  $("doneBtn").addEventListener("click",function(){doneSet[l.id]=true;saveState();updateStats();hideDetail();});
+  $("toQuizBtn").addEventListener("click",function(){goView("quiz");selectQuizField(l.field);});
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function hideDetail(){var d=$("lessonDetail");if(d)d.style.display="none";var ll=$("learnList");if(ll)ll.style.display="block";renderLearn();renderHome();}
+
+function updateStats(){
+  var done=Object.keys(doneSet).length;
+  $("statDone").textContent=done;
+  $("statBm").textContent=bookmarks.length;
+  $("statQuiz").textContent=lastScore===null?"—":lastScore+" / 10";
+  $("statWrong").textContent=wrongHist.length;
+  var badge=$("wrongTabBadge");
+  if(badge){badge.style.display=wrongHist.length?"block":"none";badge.textContent=wrongHist.length;}
+  $("progBar").style.width=Math.round(done/LESSONS.length*100)+"%";
+  $("progText").innerHTML="<b>"+done+" / "+LESSONS.length+"</b> レッスン読了";
+  if($("cumWrong"))$("cumWrong").textContent=wrongHist.length;
+  if($("cumAttempts"))$("cumAttempts").textContent=stats.attempts;
+  if($("cumRate"))$("cumRate").textContent=stats.answered?Math.round(stats.correct/stats.answered*100)+"%":"—";
+  if(lastScore!==null)$("lastResultText").textContent="スコア "+lastScore+" / 10"+(lastLabel?"（"+lastLabel+"）":"");
+  renderBookmarks();renderWrong();renderResume();
+}
+function renderBookmarks(){
+  var w=$("bmList");if(!w)return;
+  if(!bookmarks.length){w.innerHTML="<div class='empty'>まだ保存ポイントがありません。<br>クイズの解説で「ポイントを保存」を押すと、ここに見返せる形で貯まります。</div>";return;}
+  w.innerHTML="<div class='bm-list-wrap'>"+bookmarks.map(function(b){
+    return "<div class='bm-item'><span class='bm-field'>"+fieldName(b.field)+" ・ 重要度 "+b.grade+"</span><p>"+b.point+"</p></div>";
+  }).join("")+"</div>";
+}
+function renderWrong(){
+  var w=$("wrongList");if(!w)return;
+  if(!wrongHist.length){
+    w.innerHTML="<div class='empty'>間違えた問題はまだ記録されていません。<br>クイズで間違えると、ここに正解・自分の答え・ポイント付きで自動で残ります。復習で正解すると記録から外れます。</div>";
+    return;
+  }
+  var sorted=wrongHist.slice().sort(function(a,b){return b.lastAt-a.lastAt;});
+  var html="";
+  sorted.forEach(function(rec){
+    var q=QUESTIONS[rec.qi];if(!q)return;
+    html+="<div class='wrong-hist'><div class='wh-meta'><span>"+fieldName(q.field)+" ・ 重要度 "+q.grade+"</span><span class='wh-count'>"+rec.count+"回間違い</span><span>最終 "+fmtDate(rec.lastAt)+"</span></div>"
+      +"<h3>"+q.q+"</h3>"
+      +"<div class='wh-ans'><b class='ok'>正解：</b>"+q.choices[q.answer]+"<br><b class='ng'>あなたの答え：</b>"+(typeof rec.picked==="number"?q.choices[rec.picked]:"—")+"</div>"
+      +"<p class='wh-point'>"+q.point+"</p>"
+      +"<button class='wh-del' data-del='"+rec.qi+"'>覚えたので記録から外す</button></div>";
+  });
+  w.innerHTML=html;
+  w.querySelectorAll("[data-del]").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      var qi=parseInt(btn.getAttribute("data-del"),10);
+      wrongHist=wrongHist.filter(function(r){return r.qi!==qi;});
+      saveState();updateStats();
+    });
+  });
+}
+function recordWrong(q, picked){
+  var qi=qIndex(q);
+  var found=null;
+  wrongHist.forEach(function(r){if(r.qi===qi)found=r;});
+  if(found){found.count++;found.picked=picked;found.lastAt=Date.now();}
+  else wrongHist.push({qi:qi,picked:picked,count:1,lastAt:Date.now()});
+}
+function clearWrong(q){
+  var qi=qIndex(q);
+  wrongHist=wrongHist.filter(function(r){return r.qi!==qi;});
+}
+
+/* Quiz */
+var quizField="mixed";
+function buildQuizFields(){
+  var c=$("quizFields");c.innerHTML="";
+  var opts=[{id:"mixed",name:"ミックス（全分野）"}].concat(FIELDS);
+  opts.forEach(function(f){
+    var b=document.createElement("button");b.className="chip"+(quizField===f.id?" active":"");b.textContent=f.name;
+    b.addEventListener("click",function(){quizField=f.id;buildQuizFields();});
+    c.appendChild(b);
+  });
+}
+function selectQuizField(id){quizField=id;buildQuizFields();}
+buildQuizFields();
+$("heroQuizBtn").addEventListener("click",function(){goView("quiz");});
+
+var quiz=null;
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function persistProgress(){
+  if(!quiz){inProgress=null;saveState();return;}
+  inProgress={field:quiz.field||quizField,mode:quiz.mode||"normal",qis:quiz.qs.map(function(q){return qIndex(q);}),idx:quiz.idx,score:quiz.score,wrongQis:quiz.wrong.map(function(q){return qIndex(q);}),answers:quiz.answers||[]};
+  saveState();
+}
+function startQuiz(qs, field, mode){
+  quiz={qs:qs,idx:0,score:0,wrong:[],answered:false,field:field,mode:mode,answers:[]};
+  $("quizStart").style.display="none";$("quizResult").style.display="none";$("quizPlay").style.display="block";
+  persistProgress();showQuestion();
+}
+$("startQuizBtn").addEventListener("click",function(){
+  var pool=QUESTIONS.filter(function(q){return quizField==="mixed"||q.field===quizField;});
+  pool=shuffle(pool).slice(0,Math.min(10,pool.length));
+  startQuiz(pool, quizField, "normal");
+});
+function startWrongReview(){
+  if(!wrongHist.length)return;
+  var qs=wrongHist.map(function(r){return QUESTIONS[r.qi];}).filter(function(q){return !!q;});
+  startQuiz(shuffle(qs), "wrong", "review");
+}
+$("reviewWrongBtn").addEventListener("click",startWrongReview);
+var rw2=$("reviewWrongBtn2");if(rw2)rw2.addEventListener("click",function(){goView("quiz");startWrongReview();});
+var cw=$("clearWrongBtn");if(cw)cw.addEventListener("click",function(){wrongHist=[];saveState();updateStats();});
+function renderResume(){
+  var box=$("resumeBox");if(!box)return;
+  var rb=$("reviewWrongBtn");if(rb)rb.disabled=!wrongHist.length;
+  if(!inProgress||!inProgress.qis||!inProgress.qis.length||inProgress.idx>=inProgress.qis.length){box.innerHTML="";return;}
+  box.innerHTML="<div class='resume-banner'><span><b>解きかけのクイズがあります</b> — "+(inProgress.idx+1)+"問目／全"+inProgress.qis.length+"問・正解 "+inProgress.score+"</span><span style='display:flex;gap:8px'><button class='btn btn-primary btn-small' id='resumeBtn'>続きから再開</button><button class='btn btn-outline btn-small' id='discardBtn'>破棄する</button></span></div>";
+  $("resumeBtn").addEventListener("click",function(){
+    var qs=inProgress.qis.map(function(i){return QUESTIONS[i];}).filter(function(q){return !!q;});
+    quiz={qs:qs,idx:inProgress.idx,score:inProgress.score,wrong:(inProgress.wrongQis||[]).map(function(i){return QUESTIONS[i];}).filter(function(q){return !!q;}),answered:false,field:inProgress.field,mode:inProgress.mode||"normal",answers:inProgress.answers||[]};
+    $("quizStart").style.display="none";$("quizResult").style.display="none";$("quizPlay").style.display="block";
+    showQuestion();
+  });
+  $("discardBtn").addEventListener("click",function(){inProgress=null;saveState();renderResume();});
+}
+function showQuestion(){
+  var q=quiz.qs[quiz.idx];quiz.answered=false;
+  $("qStep").textContent="問題 "+(quiz.idx+1)+" / "+quiz.qs.length+(quiz.mode==="review"?" ・ 間違い復習":"");
+  $("qScoreLive").textContent="正解 "+quiz.score;
+  $("qBar").style.width=Math.round((quiz.idx+1)/quiz.qs.length*100)+"%";
+  var letters=["A","B","C","D"];
+  var html="<span class='q-field'>"+fieldName(q.field)+" ・ 重要度 "+q.grade+"</span><h3>"+q.q+"</h3><div class='choices'>";
+  q.choices.forEach(function(c,i){html+="<button class='choice' data-i='"+i+"'><span class='letter'>"+letters[i]+"</span><span>"+c+"</span></button>";});
+  html+="</div><div class='explain' id='explainBox'></div><div class='q-actions' id='qActions'></div>";
+  $("qCard").innerHTML=html;
+  $("qCard").querySelectorAll(".choice").forEach(function(btn){
+    btn.addEventListener("click",function(){answerQuestion(parseInt(btn.getAttribute("data-i"),10));});
+  });
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function answerQuestion(picked){
+  if(quiz.answered)return;quiz.answered=true;
+  var q=quiz.qs[quiz.idx];
+  var correct=picked===q.answer;
+  stats.answered++;
+  if(correct){quiz.score++;stats.correct++;if(quiz.mode==="review")clearWrong(q);}
+  else{quiz.wrong.push(q);recordWrong(q,picked);}
+  quiz.answers[quiz.idx]=picked;
+  saveState();
+  $("qScoreLive").textContent="正解 "+quiz.score;
+  $("qCard").querySelectorAll(".choice").forEach(function(btn){
+    var i=parseInt(btn.getAttribute("data-i"),10);btn.disabled=true;
+    if(i===q.answer)btn.classList.add("correct");
+    else if(i===picked)btn.classList.add("wrong");
+  });
+  var already=bookmarks.some(function(b){return b.point===q.point;});
+  var qi=qIndex(q);
+  var ex=$("explainBox");ex.classList.add("show");
+  ex.innerHTML="<h4>"+(correct?"<span class='ok'>正解</span>":"<span class='ng'>不正解 — 正解は "+["A","B","C","D"][q.answer]+"</span>")+"</h4>"
+    +maskBarHTML("解説の暗記マスク")
+    +"<p class='mask-src'>"+maskifyText(q.explain)+"</p>"
+    +"<div class='point'><b>保存ポイント：</b><span class='mask-src'>"+maskifyText(q.point)+"</span></div>"
+    +"<button class='bookmark-btn"+(already?" saved":"")+"' id='bmBtn'>"+(already?"保存済み":"ポイントを保存")+"</button>";
+  applyMasks(ex.querySelectorAll(".mask-src"),"Q:"+qi);
+  wireMaskBar(ex,"Q:"+qi);
+  $("bmBtn").addEventListener("click",function(){
+    if(!bookmarks.some(function(b){return b.point===q.point;})){bookmarks.push({field:q.field,grade:q.grade,point:q.point});}
+    this.classList.add("saved");this.textContent="保存済み";saveState();updateStats();
+  });
+  persistProgress();
+  var last=quiz.idx===quiz.qs.length-1;
+  $("qActions").innerHTML="<button class='btn btn-primary' id='nextBtn'>"+(last?"結果を見る →":"次の問題 →")+"</button>";
+  $("nextBtn").addEventListener("click",function(){
+    quiz.idx++;
+    if(quiz.idx>=quiz.qs.length)showResult();else{persistProgress();showQuestion();}
+  });
+  updateStats();
+}
+function showResult(){
+  $("quizPlay").style.display="none";
+  stats.attempts++;
+  lastScore=quiz.score;
+  lastLabel=quiz.mode==="review"?"間違い復習":(quiz.field==="mixed"||!quiz.field?"全分野ミックス":fieldName(quiz.field));
+  inProgress=null;saveState();updateStats();
+  var pct=Math.round(quiz.score/quiz.qs.length*100);
+  var msg=pct>=80?"土台がしっかり積めています。間違えた分だけ週1で見返しましょう。":pct>=50?"あと一歩です。間違えた問題は「間違えた問題」に記録済みです。復習で正解すれば記録から外れます。":"ここからが伸びどころ。間違えた問題は記録済みなので、まず復習モードで潰すのが最短ルートです。";
+  var html="<div class='quiz-hero'><div class='result'><div class='result-score'>"+quiz.score+"<small> / "+quiz.qs.length+" 問正解（"+pct+"%）</small></div>"
+    +"<p class='result-msg'>"+msg+"</p></div>";
+  if(quiz.wrong.length){
+    html+="<h3 style='margin:16px 0 4px;font-family:\"Noto Serif JP\",serif'>今回間違えた問題（記録済み）</h3><div class='wrong-list'>";
+    quiz.wrong.forEach(function(q){html+="<div class='wrong-item'><b>"+fieldName(q.field)+"："+q.q+"</b>正解："+q.choices[q.answer]+"<br><span style='color:var(--muted)'>"+q.point+"</span></div>";});
+    html+="</div>";
+  }else{
+    html+="<p style='font-weight:800;color:var(--indigo);margin-top:14px'>全問正解です。次の分野に進みましょう。</p>";
+  }
+  html+="<div style='display:flex;gap:10px;flex-wrap:wrap;margin-top:20px'><button class='btn btn-teal' id='retryBtn'>もう一度解く</button><button class='btn btn-outline' id='goWrongBtn'>間違えた問題を見る</button><button class='btn btn-outline' id='backStartBtn'>クイズトップへ</button><button class='btn btn-outline' id='goBmBtn'>保存ポイントを見る</button></div></div>";
+  var r=$("quizResult");r.style.display="block";r.innerHTML=html;
+  $("retryBtn").addEventListener("click",function(){r.style.display="none";$("quizStart").style.display="block";});
+  $("backStartBtn").addEventListener("click",function(){r.style.display="none";$("quizStart").style.display="block";});
+  $("goWrongBtn").addEventListener("click",function(){goView("wrong");});
+  $("goBmBtn").addEventListener("click",function(){goView("bookmarks");});
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+renderHome();renderLearn();updateStats();
+
+</script>
+</body>
+</html>
