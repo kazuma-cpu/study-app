@@ -57,7 +57,7 @@ a{color:var(--indigo)}
 .mast-stats .ms-wrong b{color:var(--red)}
 /* Bottom tab bar */
 .bottombar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:2px solid var(--line-strong);padding-bottom:env(safe-area-inset-bottom)}
-.bottombar-in{max-width:1060px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+.bottombar-in{max-width:1060px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
 .btab{border:0;border-right:1px solid var(--line);background:none;color:var(--muted);font:inherit;font-size:11.5px;font-weight:700;padding:10px 2px 9px;cursor:pointer;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative}
 .btab:last-child{border-right:0}
 .btab .bt-ic{font-family:"Noto Serif JP",serif;font-size:17px;line-height:1;font-weight:900}
@@ -86,7 +86,6 @@ a{color:var(--indigo)}
 .night-lines li{display:flex;gap:14px;align-items:baseline;padding:13px 2px;border-bottom:1px solid var(--line);font-size:17.5px;line-height:1.65}
 .night-lines li:last-child{border-bottom:0}
 .night-lines .nl-num{font-family:"Noto Serif JP",serif;font-weight:900;color:var(--red);font-size:15px;flex-shrink:0;width:20px;text-align:center}
-.night-lines .nl-grade{font-size:11px;font-weight:900;border:1px solid currentColor;padding:1px 6px;border-radius:2px;flex-shrink:0;position:relative;top:-2px}
 .night-actions{display:flex;gap:10px;flex-wrap:wrap;padding:0 18px 16px}
 .progress-line{margin-top:14px;border-top:1px solid var(--line-strong);border-bottom:1px solid var(--line);padding:10px 2px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
 .progress-line .bar{flex:1;min-width:120px;height:6px;background:var(--paper2);border:1px solid var(--line)}
@@ -111,26 +110,23 @@ a{color:var(--indigo)}
 .chip small{opacity:.7;font-weight:500;margin-left:4px}
 /* Lesson list — editorial rows, not cards */
 .grid{display:block;border-bottom:1px solid var(--line)}
-.card{display:grid;grid-template-columns:64px 1fr auto;gap:6px 14px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:15px 6px;cursor:pointer;font:inherit;color:inherit;align-items:start}
+.card{display:grid;grid-template-columns:64px 1fr;gap:6px 14px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:15px 6px;cursor:pointer;font:inherit;color:inherit;align-items:start}
 .card:hover{background:var(--card)}
 .card-top{display:contents}
 .field{grid-row:1;font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--indigo);padding-top:3px}
-.grade{grid-row:1;grid-column:3;font-weight:900;font-size:13px;font-family:"Noto Serif JP",serif;border:1.5px solid currentColor;padding:2px 8px;border-radius:2px;line-height:1.3;white-space:nowrap}
-.g-aplus{color:var(--red)}.g-a{color:var(--red)}.g-aminus{color:var(--warm-bright)}
-.g-bplus{color:var(--indigo)}.g-b{color:var(--indigo)}.g-bminus{color:var(--muted)}.g-c{color:var(--muted)}
 .card h3{grid-column:2;margin:0;font-size:16.5px;line-height:1.5;font-weight:800;font-family:"Noto Serif JP",serif}
 .card p{grid-column:2;margin:0;font-size:13px;color:var(--muted);line-height:1.65}
 .card-foot{grid-column:2;display:flex;gap:14px;align-items:center;font-size:12px;color:var(--muted)}
 .card-foot b{color:var(--indigo)}
 .done-badge{font-size:11px;font-weight:800;color:var(--green)}
-/* Legend */
-.legend{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line-strong);background:var(--card);margin-top:14px}
-.legend-box{padding:16px 18px;border-right:1px solid var(--line)}
-.legend-box:last-child{border-right:0}
-.legend-box h4{margin:0 0 6px;font-size:14px;font-family:"Noto Serif JP",serif}
-.legend-box p{margin:0;font-size:13px;color:var(--muted)}
-.legend-grades{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.legend-grades .grade{border:1.5px solid currentColor}
+/* Field index (学ぶタブ：分野一覧) */
+.fgrid{display:grid;grid-template-columns:repeat(2,1fr);border-top:2px solid var(--line-strong);border-left:1px solid var(--line);background:var(--card);margin-top:4px}
+.fcard{display:grid;grid-template-columns:48px 1fr;gap:4px 14px;align-items:center;text-align:left;background:none;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:18px 16px;cursor:pointer;font:inherit;color:inherit;min-height:88px}
+.fcard:hover{background:var(--paper2)}
+.fc-ic{grid-row:span 2;width:48px;height:48px;border:1.5px solid var(--line-strong);display:grid;place-items:center;font-family:"Noto Serif JP",serif;font-weight:900;font-size:17px;color:var(--indigo)}
+.fc-name{font-family:"Noto Serif JP",serif;font-weight:900;font-size:17.5px;line-height:1.3}
+.fc-meta{font-size:12px;color:var(--muted)}
+.fc-meta b{color:var(--ink);font-family:"Noto Serif JP",serif}
 /* Views */
 .view{display:none}.view.active{display:block}
 /* Lesson detail — article */
@@ -211,11 +207,13 @@ a{color:var(--indigo)}
 .wrong-hist .wh-point{font-size:13px;color:var(--ink2);margin-top:8px;line-height:1.75}
 .wh-del{margin-top:10px;background:none;border:1px solid var(--line);border-radius:3px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--muted);min-height:44px;font:inherit}
 footer{margin-top:44px;padding-top:14px;border-top:3px double var(--line-strong);font-size:12px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-@media(max-width:860px){.legend{grid-template-columns:1fr}.legend-box{border-right:0;border-bottom:1px solid var(--line)}.legend-box:last-child{border-bottom:0}.detail{padding:20px}}
+@media(max-width:860px){.detail{padding:20px}}
 @media(max-width:560px){
   .mast-title{font-size:21px}.mast-title small{display:block;margin:2px 0 0}
   .night-lines li{font-size:16.5px}
-  .card{grid-template-columns:52px 1fr auto}
+  .card{grid-template-columns:52px 1fr}
+  .fgrid{grid-template-columns:1fr}
+  .fcard{border-right:0}
   .sec-head p{display:none}
   .btab{font-size:10.5px;min-height:60px}
 }
@@ -245,7 +243,7 @@ footer{margin-top:44px;padding-top:14px;border-top:3px double var(--line-strong)
   <!-- HOME -->
   <section class="view active" id="view-home">
     <div class="tonight">
-      <div class="tonight-head"><h2>今夜ノートに写す分</h2><span class="t-sub">重要度 A+・A のみ ／ 最大3行 ／ 23:30、スマホを寝室の外へ置く直前に</span></div>
+      <div class="tonight-head"><h2>今夜ノートに写す分</h2><span class="t-sub">最大3行 ／ 23:30、スマホを寝室の外へ置く直前に</span></div>
       <ul class="night-lines" id="nightList"></ul>
       <div class="tonight-topic">
         <div class="t-kicker" id="heroKicker">本日のテーマ</div>
@@ -257,26 +255,36 @@ footer{margin-top:44px;padding-top:14px;border-top:3px double var(--line-strong)
         <button class="btn btn-ghost" id="heroQuizBtn">クイズ10問に挑戦</button>
       </div>
     </div>
-    <div class="progress-line"><span>レッスンの進み具合</span><div class="bar"><i id="progBar" style="width:0%"></i></div><span id="progText"><b>0 / 19</b> レッスン読了</span><span>重点範囲は A+〜B</span></div>
+    <div class="progress-line"><span>レッスンの進み具合</span><div class="bar"><i id="progBar" style="width:0%"></i></div><span id="progText"><b>0 / 19</b> レッスン読了</span></div>
 
-    <div class="sec-head"><h2>分野から選ぶ</h2><p>6分野ローテーション</p></div>
+    <div class="sec-head"><h2>分野から選ぶ</h2><p>タップで分野のレッスン一覧へ</p></div>
     <div class="chips" id="homeChips"></div>
 
-    <div class="sec-head"><h2>おすすめレッスン</h2><p>重要度 A+〜B を優先表示中</p></div>
+    <div class="sec-head"><h2>未読のレッスン</h2><p>読了していないものから6本</p></div>
     <div class="grid" id="homeGrid"></div>
+
+    <div class="detail" style="margin-top:28px">
+      <h3 style="margin-top:0;border:0;padding:0">このアプリの回し方</h3>
+      <p><b>1. 夜に開く（3分）</b> — ホームの「今夜ノートに写す分」だけ見て、紙ノートへ3行写す。スマホはそのまま寝室の外へ。</p>
+      <p><b>2. まとまった日に解く（10分）</b> — クイズ10問。間違えた問題は解説の「保存ポイント」に貯めて、週1回見返す。</p>
+      <p><b>3. 気になる分野を深掘る</b> — 「学ぶ」タブで分野を選び、<span class="key">赤字の重要語</span>を中心に読む。他業界ではどう見えるか、まで入れてあります。</p>
+    </div>
   </section>
 
-  <!-- LEARN -->
+  <!-- LEARN: 分野一覧 → 分野のレッスン → 本文 -->
   <section class="view" id="view-learn">
-    <div id="learnList">
+    <div id="learnFields">
+      <div class="sec-head"><h2>分野から学ぶ</h2><p id="learnTotal"></p></div>
+      <div class="fgrid" id="fieldGrid"></div>
+    </div>
+    <div id="learnList" style="display:none">
+      <button class="back-btn" id="learnBackBtn">← 分野一覧に戻る</button>
       <div class="controls">
-        <div class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="キーワードで探す（例：金利、利回り、譲渡所得）" aria-label="レッスン検索"></div>
-        <div class="toggle"><input type="checkbox" id="focusToggle" checked><label for="focusToggle">A+〜B だけ表示（重点範囲）</label></div>
+        <div class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="この分野の中で探す（例：金利、利回り）" aria-label="レッスン検索"></div>
       </div>
-      <div class="chips" id="learnChips"></div>
       <div class="sec-head"><h2 id="learnCount">レッスン一覧</h2><p>カードをタップで本文が開きます</p></div>
       <div class="grid" id="learnGrid"></div>
-      <div class="empty" id="learnEmpty" style="display:none">条件に合うレッスンがありません。分野か検索ワードを変えてみてください。</div>
+      <div class="empty" id="learnEmpty" style="display:none">条件に合うレッスンがありません。検索ワードを変えてみてください。</div>
     </div>
     <div id="lessonDetail" style="display:none"></div>
   </section>
@@ -324,34 +332,6 @@ footer{margin-top:44px;padding-top:14px;border-top:3px double var(--line-strong)
     <div id="bmList"></div>
   </section>
 
-  <!-- GRADES -->
-  <section class="view" id="view-grades">
-    <div class="sec-head"><h2>重要度グレードの見方</h2><p>実務頻度・土台度・入社までの優先度・顧客との会話に出る確率で総合判定</p></div>
-    <div class="legend">
-      <div class="legend-box">
-        <div class="legend-grades"><span class="grade g-aplus">A+</span><span class="grade g-a">A</span><span class="grade g-aminus">A−</span></div>
-        <h4>最優先 — ノートに写す範囲</h4>
-        <p>実務で毎週使う土台。就寝前の紙ノートに写すのはこのゾーンだけに絞ります。A+は「これが分からないと次が積めない」もの。</p>
-      </div>
-      <div class="legend-box">
-        <div class="legend-grades"><span class="grade g-bplus">B+</span><span class="grade g-b">B</span></div>
-        <h4>重点 — ここまでが学習範囲</h4>
-        <p>アプリで重点的に学ぶのは <b>A+〜Bまで</b>。顧客との会話や資格・実務の判断で効いてくる層です。レッスンとクイズの中心はここです。</p>
-      </div>
-      <div class="legend-box">
-        <div class="legend-grades"><span class="grade g-bminus">B−</span><span class="grade" style="background:var(--surface2);border:1px solid var(--line);color:var(--muted)">C+〜C−</span></div>
-        <h4>参考 — 目を通すだけ</h4>
-        <p>B−以下は「存在を知っていれば十分」。深追いせず、必要になったら調べる前提でOKです。初期表示では絞り込んでいます。</p>
-      </div>
-    </div>
-    <div class="detail" style="margin-top:16px">
-      <h3 style="margin-top:0;border:0;padding:0">このアプリの回し方</h3>
-      <p><b>1. 夜に開く（3分）</b> — ホームの「今夜ノートに写す分」だけ見て、紙ノートへ3行写す。スマホはそのまま寝室の外へ。</p>
-      <p><b>2. まとまった日に解く（10分）</b> — クイズ10問。間違えた問題は解説の「保存ポイント」に貯めて、週1回見返す。</p>
-      <p><b>3. 気になる分野を深掘る</b> — 「学ぶ」タブで分野を絞り、<span class="key">赤字の重要語</span>を中心に読む。他業界ではどう見えるか、まで入れてあります。</p>
-    </div>
-  </section>
-
   <footer>
     <span>学習アプリ — 金融・不動産・税務・経済学・経営学・AI実務</span>
     <span>ホーム画面に追加すれば、アイコンから1タップで開けます</span>
@@ -365,7 +345,6 @@ footer{margin-top:44px;padding-top:14px;border-top:3px double var(--line-strong)
     <button class="tab btab" data-view="quiz"><span class="bt-ic">問</span>問題</button>
     <button class="tab btab" data-view="wrong"><span class="bt-ic">誤</span>間違い<span class="badge" id="wrongTabBadge" style="display:none">0</span></button>
     <button class="tab btab" data-view="bookmarks"><span class="bt-ic">保</span>保存</button>
-    <button class="tab btab" data-view="grades"><span class="bt-ic">級</span>重要度</button>
   </div>
 </nav>
 
@@ -379,9 +358,8 @@ var FIELDS=[
   {id:"ai",name:"AI実務",icon:"AI"}
 ];
 function fieldName(id){for(var i=0;i<FIELDS.length;i++)if(FIELDS[i].id===id)return FIELDS[i].name;return id;}
-function gradeClass(g){return {"A+":"g-aplus","A":"g-a","A-":"g-aminus","B+":"g-bplus","B":"g-b","B-":"g-bminus"}[g]||"g-c";}
+/* 重要度は画面に表示しない。「今夜の3行」「本日のテーマ」の内部選定にだけ使う */
 var GRADE_RANK={"A+":0,"A":1,"A-":2,"B+":3,"B":4,"B-":5,"C+":6,"C":7,"C-":8};
-function isFocus(g){return GRADE_RANK[g]<=4;}
 
 var LESSONS=[
 {id:"fin1",field:"finance",grade:"A+",title:"金利は「お金のレンタル料」— 政策金利から住宅ローンまで",mins:5,summary:"日銀の政策金利が、短プラ・変動金利・あなたの将来の顧客の月返済にどう伝わるか。すべての土台です。",body:"<h3>まず結論</h3><p>金利とは<span class='key'>お金を借りるためのレンタル料</span>です。貸す側は「将来返ってくるか分からないリスク」と「その間、自分が使えない不便さ」の対価として金利を受け取ります。</p><h3>金利が決まる3つの層</h3><ul><li><span class='key'>政策金利</span>：中央銀行（日銀）が決める一番下の土台。銀行同士のお金の貸し借りの目安。</li><li><span class='key'>短期プライムレート（短プラ）</span>：銀行が優良企業に短期で貸すときの基準金利。政策金利の動きに連動しやすい。</li><li>住宅ローンの<span class='key'>変動金利</span>：多くの銀行で短プラに連動する仕組み。だから日銀の会合が不動産の相談に直結します。</li></ul><h3>他業界ではどう見えるか</h3><p>製造業にとって金利上昇は設備投資のハードル上げ、株式市場では「将来利益の現在価値が下がる」要因として株価に効きます。同じニュースでも、立場で意味が変わるのが金利です。</p><div class='callout'><b>実務の型</b><p>顧客に金利を説明するときは「金利そのもの」より「<span class='key'>月返済がどう変わるか</span>」に翻訳する。数字→生活への影響、の順で話すと伝わります。</p></div>"},
@@ -461,103 +439,112 @@ function loadState(){
 }
 loadState();
 
-var currentField="all";
 function $(id){return document.getElementById(id);}
 function qIndex(q){for(var i=0;i<QUESTIONS.length;i++)if(QUESTIONS[i]===q)return i;for(var j=0;j<QUESTIONS.length;j++)if(QUESTIONS[j].q===q.q)return j;return -1;}
 function fmtDate(ts){var d=new Date(ts);return (d.getMonth()+1)+"/"+d.getDate();}
+function lessonsOf(fid){return LESSONS.filter(function(l){return l.field===fid;});}
+function countRead(fid){return lessonsOf(fid).filter(function(l){return !!doneSet[l.id];}).length;}
 
 /* Tabs (bottom bar) */
 var tabs=document.querySelectorAll(".tab");
 tabs.forEach(function(t){
   t.addEventListener("click",function(){
-    goView(t.getAttribute("data-view"));
+    var v=t.getAttribute("data-view");
+    if(v==="learn")showLearnRoot();
+    goView(v);
   });
 });
 function goView(name){
   tabs.forEach(function(x){x.classList.toggle("active",x.getAttribute("data-view")===name);});
   document.querySelectorAll(".view").forEach(function(v){v.classList.remove("active");});
   var el=$("view-"+name);if(el)el.classList.add("active");
-  if(name==="learn"){hideDetail();}
   if(name==="wrong"){renderWrong();}
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-/* Chips */
-function buildChips(containerId,onPick){
-  var c=$(containerId);if(!c)return;c.innerHTML="";
-  var all=document.createElement("button");all.className="chip"+(currentField==="all"?" active":"");all.textContent="すべて";
-  all.addEventListener("click",function(){currentField="all";onPick();refreshChips();});
-  c.appendChild(all);
+/* Home: 分野チップ → 学ぶタブの分野一覧へ */
+function buildHomeFields(){
+  var c=$("homeChips");c.innerHTML="";
   FIELDS.forEach(function(f){
-    var n=LESSONS.filter(function(l){return l.field===f.id;}).length;
-    var b=document.createElement("button");b.className="chip"+(currentField===f.id?" active":"");
-    b.innerHTML=f.name+"<small>"+n+"本</small>";b.setAttribute("data-field",f.id);
-    b.addEventListener("click",function(){currentField=f.id;onPick();refreshChips();});
+    var b=document.createElement("button");b.className="chip";
+    b.innerHTML=f.name+"<small>"+lessonsOf(f.id).length+"本</small>";
+    b.addEventListener("click",function(){openField(f.id);});
     c.appendChild(b);
   });
 }
-function refreshChips(){
-  ["homeChips","learnChips"].forEach(function(id){
-    var c=$(id);if(!c)return;
-    c.querySelectorAll(".chip").forEach(function(ch,i){
-      var f=i===0?"all":ch.getAttribute("data-field");
-      ch.classList.toggle("active",f===currentField);
-    });
-  });
-  renderHome();renderLearn();
-}
-buildChips("homeChips",function(){});
-buildChips("learnChips",function(){});
+buildHomeFields();
+
+/* 学ぶタブの状態：learnField=null なら分野一覧 */
+var learnField=null;
 
 /* Lesson rows */
 function cardHTML(l){
   var done=doneSet[l.id];
-  return "<span class='field'>"+fieldName(l.field)+"</span><span class='grade "+gradeClass(l.grade)+"'>"+l.grade+"</span>"
+  return "<span class='field'>"+fieldName(l.field)+"</span>"
     +"<h3>"+l.title+"</h3><p>"+l.summary+"</p>"
     +"<div class='card-foot'><span>約"+l.mins+"分</span>"+(done?"<span class='done-badge'>読了済み</span>":"<b>読む →</b>")+"</div>";
 }
+function lessonButton(l){
+  var b=document.createElement("button");b.className="card";b.innerHTML=cardHTML(l);
+  b.addEventListener("click",function(){openLesson(l.id);});
+  return b;
+}
 function renderHome(){
-  var list=LESSONS.filter(function(l){return (currentField==="all"||l.field===currentField)&&isFocus(l.grade);});
-  list=list.slice().sort(function(a,b){return GRADE_RANK[a.grade]-GRADE_RANK[b.grade];}).slice(0,6);
-  var g=$("homeGrid");g.innerHTML="";
-  list.forEach(function(l){
-    var b=document.createElement("button");b.className="card";b.innerHTML=cardHTML(l);
-    b.addEventListener("click",function(){openLesson(l.id);});
-    g.appendChild(b);
-  });
   var top=LESSONS.filter(function(l){return GRADE_RANK[l.grade]<=1;});
   var dayIdx=Math.floor(Date.now()/86400000)%top.length;
   var today=top[dayIdx];
   $("heroTitle").textContent=today.title.split("—")[0].split("：")[0];
-  $("heroKicker").textContent="本日のテーマ — "+fieldName(today.field)+" ・ 重要度 "+today.grade;
+  $("heroKicker").textContent="本日のテーマ — "+fieldName(today.field);
   $("heroText").textContent=today.summary;
   $("nightList").innerHTML=top.slice(dayIdx,dayIdx+3).concat(top.slice(0,Math.max(0,dayIdx+3-top.length))).slice(0,3).map(function(l,i){
-    return "<li><span class='nl-num'>"+(i+1)+"</span><span class='nl-grade "+gradeClass(l.grade)+"'>"+l.grade+"</span><span>"+l.title+"</span></li>";
+    return "<li><span class='nl-num'>"+(i+1)+"</span><span>"+l.title+"</span></li>";
   }).join("");
   $("heroLearnBtn").onclick=function(){openLesson(today.id);};
+  var g=$("homeGrid");g.innerHTML="";
+  var unread=LESSONS.filter(function(l){return !doneSet[l.id];}).slice(0,6);
+  if(!unread.length)g.innerHTML="<div class='empty'>すべて読了しました。クイズで定着を確認しましょう。</div>";
+  unread.forEach(function(l){g.appendChild(lessonButton(l));});
   var dn=new Date();
   $("mastDate").textContent=(dn.getMonth()+1)+"月"+dn.getDate()+"日（"+"日月火水木金土"[dn.getDay()]+"）";
 }
-function renderLearn(){
-  var q=($("searchInput").value||"").trim();
-  var focus=$("focusToggle").checked;
-  var list=LESSONS.filter(function(l){
-    if(currentField!=="all"&&l.field!==currentField)return false;
-    if(focus&&!isFocus(l.grade))return false;
-    if(q&&(l.title+l.summary+fieldName(l.field)).indexOf(q)===-1)return false;
-    return true;
-  });
-  $("learnCount").textContent="レッスン一覧（"+list.length+"本）";
-  $("learnEmpty").style.display=list.length?"none":"block";
-  var g=$("learnGrid");g.innerHTML="";
-  list.forEach(function(l){
-    var b=document.createElement("button");b.className="card";b.innerHTML=cardHTML(l);
-    b.addEventListener("click",function(){openLesson(l.id);});
+function showLearnRoot(){
+  learnField=null;
+  $("learnFields").style.display="block";
+  $("learnList").style.display="none";
+  $("lessonDetail").style.display="none";
+  renderLearnFields();
+}
+function renderLearnFields(){
+  $("learnTotal").textContent="6分野 ・ 全"+LESSONS.length+"本";
+  var g=$("fieldGrid");g.innerHTML="";
+  FIELDS.forEach(function(f){
+    var b=document.createElement("button");b.className="fcard";
+    b.innerHTML="<span class='fc-ic'>"+f.icon+"</span><span class='fc-name'>"+f.name+"</span>"
+      +"<span class='fc-meta'>"+lessonsOf(f.id).length+"本 ・ 読了 <b>"+countRead(f.id)+"</b></span>";
+    b.addEventListener("click",function(){openField(f.id);});
     g.appendChild(b);
   });
 }
-$("searchInput").addEventListener("input",renderLearn);
-$("focusToggle").addEventListener("change",renderLearn);
+function openField(fid){
+  learnField=fid;
+  goView("learn");
+  $("learnFields").style.display="none";
+  $("lessonDetail").style.display="none";
+  $("learnList").style.display="block";
+  $("searchInput").value="";
+  renderFieldLessons();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderFieldLessons(){
+  var q=($("searchInput").value||"").trim();
+  var list=lessonsOf(learnField).filter(function(l){return !q||(l.title+l.summary).indexOf(q)!==-1;});
+  $("learnCount").textContent=fieldName(learnField)+"（"+list.length+"本）";
+  $("learnEmpty").style.display=list.length?"none":"block";
+  var g=$("learnGrid");g.innerHTML="";
+  list.forEach(function(l){g.appendChild(lessonButton(l));});
+}
+$("searchInput").addEventListener("input",function(){renderFieldLessons();});
+$("learnBackBtn").addEventListener("click",function(){showLearnRoot();});
 
 /* ---- Mask (red-sheet) ---- */
 function applyMasks(scopeEls, prefix){
@@ -625,23 +612,24 @@ function maskifyText(text, prefix){
 function openLesson(id){
   var l=null;LESSONS.forEach(function(x){if(x.id===id)l=x;});
   if(!l)return;
+  learnField=l.field;
   goView("learn");
+  $("learnFields").style.display="none";
   $("learnList").style.display="none";
   var d=$("lessonDetail");d.style.display="block";
-  d.innerHTML="<button class='back-btn' id='backBtn'>← 一覧に戻る</button>"
-    +"<article class='detail'><div style='display:flex;justify-content:space-between;gap:8px;align-items:center'><span style='font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--indigo)'>"+fieldName(l.field)+" ・ 約"+l.mins+"分</span><span class='grade "+gradeClass(l.grade)+"'>重要度 "+l.grade+"</span></div>"
+  d.innerHTML="<button class='back-btn' id='backBtn'>← "+fieldName(l.field)+"の一覧へ戻る</button>"
+    +"<article class='detail'><div style='font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--indigo)'>"+fieldName(l.field)+" ・ 約"+l.mins+"分</div>"
     +"<h2>"+l.title+"</h2><p class='lead'>"+l.summary+"</p>"
     +maskBarHTML("暗記マスク")
     +"<div id='lessonBody'>"+l.body+"</div>"
     +"<div style='display:flex;gap:10px;flex-wrap:wrap;margin-top:22px'><button class='btn btn-teal' id='doneBtn'>"+(doneSet[l.id]?"読了済み":"読了にする")+"</button><button class='btn btn-outline' id='toQuizBtn'>この分野のクイズを解く →</button></div></article>";
   applyMasks([$("lessonBody")],"L:"+l.id);
   wireMaskBar(d,"L:"+l.id);
-  $("backBtn").addEventListener("click",hideDetail);
-  $("doneBtn").addEventListener("click",function(){doneSet[l.id]=true;saveState();updateStats();hideDetail();});
+  $("backBtn").addEventListener("click",function(){openField(l.field);});
+  $("doneBtn").addEventListener("click",function(){doneSet[l.id]=true;saveState();updateStats();renderHome();openField(l.field);});
   $("toQuizBtn").addEventListener("click",function(){goView("quiz");selectQuizField(l.field);});
   window.scrollTo({top:0,behavior:"smooth"});
 }
-function hideDetail(){var d=$("lessonDetail");if(d)d.style.display="none";var ll=$("learnList");if(ll)ll.style.display="block";renderLearn();renderHome();}
 
 function updateStats(){
   var done=Object.keys(doneSet).length;
@@ -663,7 +651,7 @@ function renderBookmarks(){
   var w=$("bmList");if(!w)return;
   if(!bookmarks.length){w.innerHTML="<div class='empty'>まだ保存ポイントがありません。<br>クイズの解説で「ポイントを保存」を押すと、ここに見返せる形で貯まります。</div>";return;}
   w.innerHTML="<div class='bm-list-wrap'>"+bookmarks.map(function(b){
-    return "<div class='bm-item'><span class='bm-field'>"+fieldName(b.field)+" ・ 重要度 "+b.grade+"</span><p>"+b.point+"</p></div>";
+    return "<div class='bm-item'><span class='bm-field'>"+fieldName(b.field)+"</span><p>"+b.point+"</p></div>";
   }).join("")+"</div>";
 }
 function renderWrong(){
@@ -676,7 +664,7 @@ function renderWrong(){
   var html="";
   sorted.forEach(function(rec){
     var q=QUESTIONS[rec.qi];if(!q)return;
-    html+="<div class='wrong-hist'><div class='wh-meta'><span>"+fieldName(q.field)+" ・ 重要度 "+q.grade+"</span><span class='wh-count'>"+rec.count+"回間違い</span><span>最終 "+fmtDate(rec.lastAt)+"</span></div>"
+    html+="<div class='wrong-hist'><div class='wh-meta'><span>"+fieldName(q.field)+"</span><span class='wh-count'>"+rec.count+"回間違い</span><span>最終 "+fmtDate(rec.lastAt)+"</span></div>"
       +"<h3>"+q.q+"</h3>"
       +"<div class='wh-ans'><b class='ok'>正解：</b>"+q.choices[q.answer]+"<br><b class='ng'>あなたの答え：</b>"+(typeof rec.picked==="number"?q.choices[rec.picked]:"—")+"</div>"
       +"<p class='wh-point'>"+q.point+"</p>"
@@ -762,7 +750,7 @@ function showQuestion(){
   $("qScoreLive").textContent="正解 "+quiz.score;
   $("qBar").style.width=Math.round((quiz.idx+1)/quiz.qs.length*100)+"%";
   var letters=["A","B","C","D"];
-  var html="<span class='q-field'>"+fieldName(q.field)+" ・ 重要度 "+q.grade+"</span><h3>"+q.q+"</h3><div class='choices'>";
+  var html="<span class='q-field'>"+fieldName(q.field)+"</span><h3>"+q.q+"</h3><div class='choices'>";
   q.choices.forEach(function(c,i){html+="<button class='choice' data-i='"+i+"'><span class='letter'>"+letters[i]+"</span><span>"+c+"</span></button>";});
   html+="</div><div class='explain' id='explainBox'></div><div class='q-actions' id='qActions'></div>";
   $("qCard").innerHTML=html;
@@ -835,7 +823,7 @@ function showResult(){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-renderHome();renderLearn();updateStats();
+renderHome();showLearnRoot();updateStats();
 
 </script>
 </body>
