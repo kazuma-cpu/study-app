@@ -234,6 +234,41 @@ footer{margin-top:44px;padding-top:14px;border-top:3px double var(--line-strong)
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
+
+/* ===== v3 overhaul: mission / streak / field progress ===== */
+.mission{margin-top:22px;background:var(--card);border:2px solid var(--line-strong);padding:18px 18px 14px}
+.mission-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:6px}
+.mission-head h2{font-family:"Noto Serif JP",serif;font-size:19px;margin:0}
+.mission-head span{font-size:12px;color:var(--muted);font-weight:700}
+.m-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:13px 2px;cursor:pointer;font:inherit;color:var(--ink);min-height:56px}
+.m-item:last-of-type{border-bottom:0}
+.m-check{flex:none;width:26px;height:26px;border:2px solid var(--line-strong);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:transparent;background:var(--card)}
+.m-item.done .m-check{background:var(--green);border-color:var(--green);color:#fff}
+.m-item.done .m-title{color:var(--muted);text-decoration:line-through}
+.m-main{flex:1;min-width:0}
+.m-title{display:block;font-weight:800;font-size:15.5px}
+.m-sub{display:block;font-size:12.5px;color:var(--muted)}
+.m-arrow{flex:none;color:var(--indigo);font-weight:900}
+.mission .progress-line{margin-top:12px}
+.streak{margin-top:16px;background:var(--indigo-deep);color:#f5efe0;padding:16px 18px}
+.streak-nums{display:flex;gap:10px}
+.streak-cell{flex:1;text-align:center}
+.streak-cell b{display:block;font-size:30px;font-family:"Noto Serif JP",serif;line-height:1.15;color:#fff}
+.streak-cell span{font-size:11.5px;letter-spacing:.08em;opacity:.85}
+.dots{display:flex;gap:5px;margin-top:14px}
+.dots i{flex:1;height:9px;background:rgba(245,239,224,.18);border-radius:2px}
+.dots i.on{background:var(--warm-bright)}
+.dots i.today{outline:2px solid rgba(245,239,224,.65);outline-offset:1px}
+.streak-note{margin:10px 0 0;font-size:12.5px;opacity:.9}
+.fprog{background:var(--card);border:1px solid var(--line)}
+.fp-row{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 14px;cursor:pointer;font:inherit;color:var(--ink);text-align:left;min-height:54px}
+.fp-row:last-child{border-bottom:0}
+.fp-name{flex:none;width:64px;font-weight:800;font-size:14.5px}
+.fp-bar{flex:1;height:10px;background:var(--paper2);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.fp-bar i{display:block;height:100%;background:var(--indigo)}
+.fp-row.full .fp-bar i{background:var(--green)}
+.fp-num{flex:none;font-size:12.5px;color:var(--muted);white-space:nowrap}
+.fp-num b{color:var(--ink);font-size:14px}
 </style>
 </head>
 <body>
@@ -270,10 +305,25 @@ footer{margin-top:44px;padding-top:14px;border-top:3px double var(--line-strong)
         <button class="btn btn-ghost" id="heroQuizBtn">クイズ10問に挑戦</button>
       </div>
     </div>
-    <div class="progress-line"><span>レッスンの進み具合</span><div class="bar"><i id="progBar" style="width:0%"></i></div><span id="progText"><b>0 / 25</b> レッスン読了</span></div>
+    <div class="mission">
+      <div class="mission-head"><h2>今日のミッション</h2><span id="missionState">0 / 3 達成</span></div>
+      <div id="missionList"></div>
+      <div class="progress-line"><span>全体の進み具合</span><div class="bar"><i id="progBar" style="width:0%"></i></div><span id="progText"><b>0 / 26</b> レッスン読了</span></div>
+    </div>
 
-    <div class="sec-head"><h2>分野から選ぶ</h2><p>タップで分野のレッスン一覧へ</p></div>
-    <div class="chips" id="homeChips"></div>
+    <div class="streak">
+      <div class="streak-nums">
+        <div class="streak-cell"><b id="streakNow">0</b><span>連続日数</span></div>
+        <div class="streak-cell"><b id="streakTotal">0</b><span>累計の学習日</span></div>
+        <div class="streak-cell"><b id="streakSince">0</b><span>開始からの日数</span></div>
+      </div>
+      <div class="dots" id="streakDots"></div>
+      <p class="streak-note" id="streakNote"></p>
+    </div>
+
+    <div class="sec-head"><h2>分野別の進み具合</h2><p>タップで分野のレッスン一覧へ</p></div>
+    <div class="fprog" id="fieldProg"></div>
+    <div class="chips" id="homeChips" style="display:none"></div>
 
     <div class="sec-head"><h2>未読のレッスン</h2><p>読了していないものから6本</p></div>
     <div class="grid" id="homeGrid"></div>
@@ -466,11 +516,12 @@ var lastScore=null;
 var lastLabel="";
 var inProgress=null; /* {field, qis:[], idx, score, wrongQis:[], answers:[]} */
 var maskRevealed={}; /* maskId -> true when peeled */
+var activity={}; /* "YYYY-MM-DD" -> {read:n, quiz:n, rev:n} */
 var storageOK=true;
 function saveState(){
   if(!storageOK)return;
   try{
-    localStorage.setItem(STORE_KEY,JSON.stringify({done:doneSet,bookmarks:bookmarks,wrong:wrongHist,stats:stats,lastScore:lastScore,lastLabel:lastLabel,prog:inProgress,mask:maskRevealed}));
+    localStorage.setItem(STORE_KEY,JSON.stringify({done:doneSet,bookmarks:bookmarks,wrong:wrongHist,stats:stats,lastScore:lastScore,lastLabel:lastLabel,prog:inProgress,mask:maskRevealed,activity:activity}));
   }catch(e){storageOK=false;}
 }
 function loadState(){
@@ -486,6 +537,7 @@ function loadState(){
     if(s.lastLabel)lastLabel=s.lastLabel;
     if(s.prog)inProgress=s.prog;
     if(s.mask)maskRevealed=s.mask;
+    if(s.activity)activity=s.activity;
   }catch(e){storageOK=false;}
 }
 loadState();
@@ -564,10 +616,72 @@ function lessonButton(l){
   return b;
 }
 function toggleDone(id){
-  if(doneSet[id])delete doneSet[id];else doneSet[id]=true;
+  if(doneSet[id])delete doneSet[id];else{doneSet[id]=true;bumpActivity("read");}
   saveState();updateStats();renderHome();renderLearnFields();
   if(learnField)renderFieldLessons();
 }
+
+/* ===== v3: activity / mission / streak / field progress ===== */
+function dayKey(d){d=d||new Date();return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);}
+function bumpActivity(kind){var k=dayKey();if(!activity[k])activity[k]={};activity[k][kind]=(activity[k][kind]||0)+1;}
+function actToday(){return activity[dayKey()]||{};}
+function nextUnread(){for(var i=0;i<LESSONS.length;i++)if(!doneSet[LESSONS[i].id])return LESSONS[i];return null;}
+function renderMission(){
+  var w=$("missionList");if(!w)return;
+  var a=actToday();
+  var nu=nextUnread();
+  var items=[
+    {done:!!a.read,title:"レッスンを1本読む",sub:nu?("次の一本：「"+nu.title.split("—")[0].split("：")[0]+"」・ "+fieldName(nu.field)+" ・ 約"+nu.mins+"分"):"全レッスン読了済み",act:function(){var l=nextUnread();if(l)openLesson(l.id);}},
+    {done:wrongHist.length===0||!!a.rev,title:"間違えた問題を復習する",sub:wrongHist.length?("記録中の間違い "+wrongHist.length+" 件 — 復習で正解すると消える"):"間違いゼロ。良い状態",act:function(){goView("wrong");}},
+    {done:!!a.quiz,title:"クイズ10問に挑戦",sub:lastScore===null?"まだ記録なし — まずは1回解いて現在地を知る":("前回 "+lastScore+" / 10（"+lastLabel+"）"),act:function(){goView("quiz");}}
+  ];
+  var doneCount=items.filter(function(x){return x.done;}).length;
+  $("missionState").textContent=doneCount+" / 3 達成"+(doneCount===3?" — 今日の分は完了":"");
+  w.innerHTML="";
+  items.forEach(function(it){
+    var b=document.createElement("button");b.className="m-item"+(it.done?" done":"");
+    b.innerHTML="<span class='m-check'>✓</span><span class='m-main'><span class='m-title'>"+it.title+"</span><span class='m-sub'>"+it.sub+"</span></span><span class='m-arrow'>→</span>";
+    b.addEventListener("click",it.act);
+    w.appendChild(b);
+  });
+}
+function renderStreak(){
+  if(!$("streakNow"))return;
+  function has(k){return !!activity[k];}
+  var streak=0;var d=new Date();
+  if(!has(dayKey(d)))d.setDate(d.getDate()-1);
+  while(has(dayKey(d))){streak++;d.setDate(d.getDate()-1);}
+  $("streakNow").textContent=streak;
+  $("streakTotal").textContent=Object.keys(activity).length;
+  var start=new Date(2026,9,11);
+  var today=new Date();today.setHours(0,0,0,0);start.setHours(0,0,0,0);
+  $("streakSince").textContent=Math.max(1,Math.round((today-start)/86400000)+1);
+  var dots=$("streakDots");dots.innerHTML="";
+  for(var i=13;i>=0;i--){
+    var dd=new Date();dd.setDate(dd.getDate()-i);
+    var el=document.createElement("i");
+    if(has(dayKey(dd)))el.className="on";
+    if(i===0)el.className=(el.className+" today").trim();
+    dots.appendChild(el);
+  }
+  var a=actToday();
+  $("streakNote").textContent=(a.read||a.quiz||a.rev)
+    ?"今日の分は記録済み。この調子で積み上げる。"
+    :"今日はまだ記録なし。レッスン1本かクイズ1回で、連続が伸びる。";
+}
+function renderFieldProg(){
+  var w=$("fieldProg");if(!w)return;
+  w.innerHTML="";
+  FIELDS.forEach(function(f){
+    var total=lessonsOf(f.id).length;var read=countRead(f.id);
+    var pct=total?Math.round(read/total*100):0;
+    var b=document.createElement("button");b.className="fp-row"+(total&&read===total?" full":"");
+    b.innerHTML="<span class='fp-name'>"+f.name+"</span><span class='fp-bar'><i style='width:"+pct+"%'></i></span><span class='fp-num'><b>"+read+"</b> / "+total+" 本"+(total-read>0?" ・ あと"+(total-read):" ・ 完了")+"</span>";
+    b.addEventListener("click",function(){openField(f.id);});
+    w.appendChild(b);
+  });
+}
+
 function renderHome(){
   var top=LESSONS.filter(function(l){return GRADE_RANK[l.grade]<=1;});
   var dayIdx=Math.floor(Date.now()/86400000)%top.length;
@@ -583,6 +697,7 @@ function renderHome(){
   var unread=LESSONS.filter(function(l){return !doneSet[l.id];}).slice(0,6);
   if(!unread.length)g.innerHTML="<div class='empty'>すべて読了しました。クイズで定着を確認しましょう。</div>";
   unread.forEach(function(l){g.appendChild(lessonButton(l));});
+  renderMission();renderStreak();renderFieldProg();
   var dn=new Date();
   $("mastDate").textContent=(dn.getMonth()+1)+"月"+dn.getDate()+"日（"+"日月火水木金土"[dn.getDay()]+"）";
 }
@@ -715,7 +830,7 @@ function openLesson(id){
   applyMasks([$("lessonBody")],"L:"+l.id);
   wireMaskBar(d,"L:"+l.id);
   $("backBtn").addEventListener("click",function(){openField(l.field);});
-  $("doneBtn").addEventListener("click",function(){doneSet[l.id]=true;saveState();updateStats();renderHome();openField(l.field);});
+  $("doneBtn").addEventListener("click",function(){doneSet[l.id]=true;bumpActivity("read");saveState();updateStats();renderHome();openField(l.field);});
   $("toQuizBtn").addEventListener("click",function(){goView("quiz");selectQuizField(l.field);});
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -734,6 +849,7 @@ function updateStats(){
   if($("cumAttempts"))$("cumAttempts").textContent=stats.attempts;
   if($("cumRate"))$("cumRate").textContent=stats.answered?Math.round(stats.correct/stats.answered*100)+"%":"—";
   if(lastScore!==null)$("lastResultText").textContent="スコア "+lastScore+" / 10"+(lastLabel?"（"+lastLabel+"）":"");
+  if($("missionList")){renderMission();renderStreak();renderFieldProg();}
   renderBookmarks();renderWrong();renderResume();
 }
 function renderBookmarks(){
@@ -888,7 +1004,7 @@ function answerQuestion(picked){
 }
 function showResult(){
   $("quizPlay").style.display="none";
-  stats.attempts++;
+  stats.attempts++;bumpActivity(quiz.mode==="review"?"rev":"quiz");
   lastScore=quiz.score;
   lastLabel=quiz.mode==="review"?"間違い復習":(quiz.field==="mixed"||!quiz.field?"全分野ミックス":fieldName(quiz.field));
   inProgress=null;saveState();updateStats();
