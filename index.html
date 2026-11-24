@@ -499,6 +499,35 @@ body.drawer-open .scrim{opacity:1;visibility:visible}
     <div id="bmList"></div>
   </section>
 
+  <section class="view" id="view-podcast">
+    <div class="sec-head"><h2>ポッドキャスト</h2><p>レッスンを音声で聴けます。移動中やジムの合間にどうぞ。聴き終わると自動で「読了」になります</p></div>
+    <div class="pod-player" id="podPlayer">
+      <div class="pod-now">
+        <div class="pod-now-field" id="podNowField">未選択</div>
+        <div class="pod-now-title" id="podNowTitle">エピソードを選んでください</div>
+        <div class="pod-now-meta" id="podNowMeta"></div>
+      </div>
+      <div class="pod-progress"><i id="podProgBar"></i></div>
+      <div class="pod-controls">
+        <button class="pod-btn" id="podPrev" aria-label="前の段落へ">⏮</button>
+        <button class="pod-btn pod-main" id="podPlay" aria-label="再生・一時停止">▶</button>
+        <button class="pod-btn" id="podNext" aria-label="次の段落へ">⏭</button>
+        <button class="pod-btn" id="podStop" aria-label="停止">⏹</button>
+      </div>
+      <div class="pod-sub">
+        <div class="pod-rates" id="podRates">
+          <button data-rate="1" class="pod-rate active">×1.0</button>
+          <button data-rate="1.25" class="pod-rate">×1.25</button>
+          <button data-rate="1.5" class="pod-rate">×1.5</button>
+          <button data-rate="2" class="pod-rate">×2.0</button>
+        </div>
+        <label class="pod-auto"><input type="checkbox" id="podAutoNext" checked> 連続再生</label>
+      </div>
+      <p class="pod-note">音声は端末の読み上げ機能を使います。画面をロックすると止まる場合があります</p>
+    </div>
+    <div id="podList"></div>
+  </section>
+
   <footer>
     <span>学習アプリ — 金融・不動産・税務・経済学・経営学・AI実務</span>
     <span>ホーム画面に追加すれば、アイコンから1タップで開けます</span>
@@ -512,6 +541,7 @@ body.drawer-open .scrim{opacity:1;visibility:visible}
     <button class="tab btab" data-view="quiz"><span class="bt-ic">問</span>問題</button>
     <button class="tab btab" data-view="wrong"><span class="bt-ic">誤</span>間違い<span class="badge" id="wrongTabBadge" style="display:none">0</span></button>
     <button class="tab btab" data-view="bookmarks"><span class="bt-ic">保</span>保存</button>
+    <button class="tab btab" data-view="podcast"><span class="bt-ic">聴</span>ポッドキャスト</button>
   </div>
 </nav>
 
@@ -1338,6 +1368,174 @@ buildAIFieldSelect();renderAIList();
   var _us=updateStats;
   updateStats=function(){_us();renderSide();};
   renderSide();
+})();
+</script>
+
+<style>
+.pod-player{background:var(--card,#fff);border:1px solid var(--line,#e3e6ee);border-radius:20px;padding:18px;margin-bottom:16px;box-shadow:0 8px 24px rgba(23,32,68,.06)}
+.pod-now-field{font-size:12px;font-weight:700;color:var(--accent,#2f4bff);letter-spacing:.08em}
+.pod-now-title{font-size:17px;font-weight:700;line-height:1.45;margin:4px 0 2px}
+.pod-now-meta{font-size:12px;color:var(--muted,#6b7280)}
+.pod-progress{height:6px;background:var(--line,#e3e6ee);border-radius:99px;margin:14px 0 6px;overflow:hidden}
+.pod-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#23356e,#2f4bff);border-radius:99px;transition:width .3s}
+.pod-controls{display:flex;gap:10px;justify-content:center;margin:10px 0 4px}
+.pod-btn{width:52px;height:52px;border-radius:50%;border:1px solid var(--line,#e3e6ee);background:var(--card,#fff);font-size:19px;cursor:pointer;color:var(--ink,#17203f)}
+.pod-btn:active{transform:scale(.96)}
+.pod-main{width:64px;height:64px;font-size:24px;background:linear-gradient(135deg,#23356e,#2f4bff);color:#fff;border:none}
+.pod-sub{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+.pod-rates{display:flex;gap:6px}
+.pod-rate{border:1px solid var(--line,#e3e6ee);background:transparent;border-radius:99px;padding:5px 11px;font-size:12px;cursor:pointer;color:var(--ink,#17203f)}
+.pod-rate.active{background:#23356e;color:#fff;border-color:#23356e}
+.pod-auto{font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.pod-note{font-size:11px;color:var(--muted,#6b7280);margin:10px 0 0}
+.pod-ep{display:flex;gap:12px;align-items:center;background:var(--card,#fff);border:1px solid var(--line,#e3e6ee);border-radius:16px;padding:13px 14px;margin-bottom:10px;cursor:pointer;text-align:left;width:100%}
+.pod-ep.playing{border-color:#2f4bff;box-shadow:0 6px 18px rgba(47,75,255,.12)}
+.pod-ep-ic{flex:0 0 auto;width:40px;height:40px;border-radius:50%;background:#eef1fb;color:#23356e;display:flex;align-items:center;justify-content:center;font-size:15px}
+.pod-ep.playing .pod-ep-ic{background:linear-gradient(135deg,#23356e,#2f4bff);color:#fff}
+.pod-ep-main{flex:1;min-width:0}
+.pod-ep-title{font-size:14px;font-weight:700;line-height:1.4}
+.pod-ep-meta{font-size:12px;color:var(--muted,#6b7280);margin-top:2px}
+.pod-ep-done{font-size:11px;color:#1c7c43;font-weight:700}
+</style>
+<script>
+/* ===== Podcast: レッスン読み上げプレイヤー ===== */
+(function(){
+  if(!("speechSynthesis" in window))return;
+  var synth=window.speechSynthesis;
+  var cur=null;        /* 現在のレッスン */
+  var chunks=[];       /* 読み上げ断片 */
+  var idx=0;           /* 現在の断片位置 */
+  var playing=false;
+  var rate=1;
+  var gen=0;           /* 古いコールバック無効化用 */
+  var jaVoice=null;
+  function pickVoice(){
+    var vs=synth.getVoices();
+    for(var i=0;i<vs.length;i++){if(vs[i].lang&&vs[i].lang.indexOf("ja")===0){jaVoice=vs[i];return;}}
+  }
+  pickVoice();
+  if(synth.onvoiceschanged!==undefined)synth.onvoiceschanged=pickVoice;
+
+  function lessonText(l){
+    var html="<h3>"+l.title+"</h3><p>"+(l.summary||"")+"</p>"+(l.body||"");
+    var t=html.replace(/<\/(p|h3|li|div|ul)>/g,"。 ").replace(/<[^>]+>/g,"").replace(/&nbsp;/g," ").replace(/&amp;/g,"&").replace(/\s+/g," ");
+    return t;
+  }
+  function makeChunks(l){
+    var t=lessonText(l);
+    var parts=t.match(/[^。！？]+[。！？]?/g)||[t];
+    var out=[],buf="";
+    for(var i=0;i<parts.length;i++){
+      var p=parts[i];
+      if((buf+p).length>140){if(buf)out.push(buf);buf=p;}
+      else buf+=p;
+    }
+    if(buf)out.push(buf);
+    return out;
+  }
+  function estMins(l){
+    if(l.mins)return l.mins;
+    return Math.max(1,Math.round(lessonText(l).length/450));
+  }
+  function $(id){return document.getElementById(id);}
+  function updateUI(){
+    var title=$("podNowTitle"),field=$("podNowField"),meta=$("podNowMeta"),bar=$("podProgBar"),play=$("podPlay");
+    if(cur){
+      field.textContent=fieldName(cur.field);
+      title.textContent=cur.title;
+      meta.textContent="約"+estMins(cur)+"分 ・ "+(idx+1)+" / "+chunks.length+" 段落";
+      bar.style.width=(chunks.length?Math.round((idx)/chunks.length*100):0)+"%";
+    }else{
+      field.textContent="未選択";title.textContent="エピソードを選んでください";meta.textContent="";bar.style.width="0";
+    }
+    play.textContent=playing?"⏸":"▶";
+    var rows=document.querySelectorAll(".pod-ep");
+    rows.forEach(function(r){r.classList.toggle("playing",cur&&r.getAttribute("data-id")===cur.id);});
+  }
+  function speak(){
+    if(!cur||idx>=chunks.length){finish();return;}
+    var myGen=gen;
+    var u=new SpeechSynthesisUtterance(chunks[idx]);
+    u.lang="ja-JP";if(jaVoice)u.voice=jaVoice;
+    u.rate=rate;
+    u.onend=function(){
+      if(myGen!==gen)return;
+      idx++;
+      if(idx>=chunks.length){finish();}
+      else{updateUI();speak();}
+    };
+    u.onerror=function(){
+      if(myGen!==gen)return;
+      playing=false;updateUI();
+    };
+    synth.speak(u);
+    playing=true;updateUI();
+  }
+  function finish(){
+    playing=false;
+    if(cur&&!doneSet[cur.id]){
+      doneSet[cur.id]=true;
+      if(typeof bumpActivity==="function")bumpActivity("read");
+      saveState();
+      if(typeof updateStats==="function")updateStats();
+      renderList();
+    }
+    var auto=$("podAutoNext");
+    if(cur&&auto&&auto.checked){
+      var pos=-1;
+      for(var i=0;i<LESSONS.length;i++)if(LESSONS[i].id===cur.id)pos=i;
+      if(pos>=0&&pos<LESSONS.length-1){playLesson(LESSONS[pos+1].id);return;}
+    }
+    idx=0;updateUI();
+  }
+  function playLesson(id){
+    for(var i=0;i<LESSONS.length;i++)if(LESSONS[i].id===id)cur=LESSONS[i];
+    if(!cur)return;
+    gen++;synth.cancel();
+    chunks=makeChunks(cur);idx=0;
+    setTimeout(speak,60);
+    updateUI();
+  }
+  function togglePlay(){
+    if(!cur){if(LESSONS.length)playLesson(LESSONS[0].id);return;}
+    if(playing){gen++;synth.cancel();playing=false;updateUI();}
+    else{if(idx>=chunks.length)idx=0;speak();}
+  }
+  function step(d){
+    if(!cur)return;
+    gen++;synth.cancel();
+    idx=Math.max(0,Math.min(chunks.length-1,idx+d));
+    if(playing)speak();else updateUI();
+  }
+  function stopAll(){
+    gen++;synth.cancel();playing=false;idx=0;updateUI();
+  }
+  function renderList(){
+    var box=$("podList");if(!box)return;
+    box.innerHTML="";
+    LESSONS.forEach(function(l){
+      var b=document.createElement("button");b.className="pod-ep";b.setAttribute("data-id",l.id);
+      var done=doneSet[l.id]?"<span class='pod-ep-done'>読了</span> ":"";
+      b.innerHTML="<span class='pod-ep-ic'>▶</span><span class='pod-ep-main'><span class='pod-ep-title'>"+l.title+"</span><span class='pod-ep-meta' style='display:block'>"+done+fieldName(l.field)+" ・ 約"+estMins(l)+"分</span></span>";
+      b.addEventListener("click",function(){playLesson(l.id);window.scrollTo({top:0,behavior:"smooth"});});
+      box.appendChild(b);
+    });
+    updateUI();
+  }
+  $("podPlay").addEventListener("click",togglePlay);
+  $("podPrev").addEventListener("click",function(){step(-1);});
+  $("podNext").addEventListener("click",function(){step(1);});
+  $("podStop").addEventListener("click",stopAll);
+  $("podRates").addEventListener("click",function(e){
+    var t=e.target;if(!t.getAttribute("data-rate"))return;
+    rate=parseFloat(t.getAttribute("data-rate"));
+    document.querySelectorAll(".pod-rate").forEach(function(x){x.classList.toggle("active",x===t);});
+    if(playing){gen++;synth.cancel();speak();}
+  });
+  var tab=document.querySelector('.tab[data-view="podcast"]');
+  if(tab)tab.addEventListener("click",renderList);
+  window.addEventListener("beforeunload",function(){synth.cancel();});
+  renderList();
 })();
 </script>
 </body>
