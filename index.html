@@ -1371,17 +1371,24 @@ buildAIFieldSelect();renderAIList();
 .pod-ep-done{font-size:11px;color:#1c7c43;font-weight:700}
 </style>
 <script>
-/* ===== Podcast: レッスン読み上げプレイヤー ===== */
+/* ===== Podcast: 生成音声＋読み上げプレイヤー ===== */
 (function(){
   if(!("speechSynthesis" in window))return;
   var synth=window.speechSynthesis;
-  var cur=null;        /* 現在のレッスン */
-  var chunks=[];       /* 読み上げ断片 */
-  var idx=0;           /* 現在の断片位置 */
+  var AUDIO_EPISODES={fin1:3,fin2:2,fin3:3,fin4:3,mgm1:4};
+  var cur=null;
+  var chunks=[];
+  var idx=0;
   var playing=false;
   var rate=1;
-  var gen=0;           /* 古いコールバック無効化用 */
+  var gen=0;
   var jaVoice=null;
+  var mode="tts";           /* "tts" | "audio" */
+  var au=new Audio();
+  au.preload="auto";
+  var auId=null;            /* 音声モードで読み込み済みのレッスンID */
+  var auLoading=false;
+  var auUrls={};
   function pickVoice(){
     var vs=synth.getVoices();
     for(var i=0;i<vs.length;i++){if(vs[i].lang&&vs[i].lang.indexOf("ja")===0){jaVoice=vs[i];return;}}
@@ -1411,17 +1418,28 @@ buildAIFieldSelect();renderAIList();
     return Math.max(1,Math.round(lessonText(l).length/450));
   }
   function $(id){return document.getElementById(id);}
+  function fmtT(s){
+    if(!isFinite(s)||s<0)s=0;
+    var m=Math.floor(s/60),ss=Math.floor(s%60);
+    return m+":"+(ss<10?"0":"")+ss;
+  }
   function updateUI(){
     var title=$("podNowTitle"),field=$("podNowField"),meta=$("podNowMeta"),bar=$("podProgBar"),play=$("podPlay");
     if(cur){
       field.textContent=fieldName(cur.field);
       title.textContent=cur.title;
-      meta.textContent="約"+estMins(cur)+"分 ・ "+(idx+1)+" / "+chunks.length+" 段落";
-      bar.style.width=(chunks.length?Math.round((idx)/chunks.length*100):0)+"%";
+      if(mode==="audio"){
+        if(auLoading){meta.textContent="生成音声を読み込み中…";}
+        else{meta.textContent="生成音声 ・ "+fmtT(au.currentTime)+" / "+fmtT(au.duration);}
+        bar.style.width=(au.duration?Math.round(au.currentTime/au.duration*100):0)+"%";
+      }else{
+        meta.textContent="読み上げ ・ 約"+estMins(cur)+"分 ・ "+(idx+1)+" / "+chunks.length+" 段落";
+        bar.style.width=(chunks.length?Math.round((idx)/chunks.length*100):0)+"%";
+      }
     }else{
-      field.textContent="未選択";title.textContent="エピソードを選んでください";meta.textContent="";bar.style.width="0";
+      field.textContent="未選択";title.textContent="エピソードを選んでください";meta.textContent="";bar.style.width="0%";
     }
-    play.textContent=playing?"⏸":"▶";
+    play.textContent=auLoading?"…":(playing?"⏸":"▶");
     var rows=document.querySelectorAll(".pod-ep");
     rows.forEach(function(r){r.classList.toggle("playing",cur&&r.getAttribute("data-id")===cur.id);});
   }
@@ -1461,35 +1479,93 @@ buildAIFieldSelect();renderAIList();
     }
     idx=0;updateUI();
   }
+  function b64ToBlobUrl(b64){
+    var bin=atob(b64.replace(/\s+/g,""));
+    var bytes=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+    return URL.createObjectURL(new Blob([bytes],{type:"audio/mpeg"}));
+  }
+  function playAudioLesson(){
+    mode="audio";
+    if(auId===cur.id&&au.src){au.playbackRate=rate;au.play();playing=true;updateUI();return;}
+    auLoading=true;playing=false;updateUI();
+    var myGen=gen;
+    function start(url){
+      if(myGen!==gen)return;
+      auUrls[cur.id]=url;auId=cur.id;
+      au.src=url;au.playbackRate=rate;
+      auLoading=false;
+      au.play().then(function(){if(myGen===gen){playing=true;updateUI();}}).catch(function(){if(myGen===gen){playing=false;updateUI();}});
+      updateUI();
+    }
+    if(auUrls[cur.id]){start(auUrls[cur.id]);return;}
+    var n=AUDIO_EPISODES[cur.id]||0;
+    var reqs=[];
+    for(var pi=0;pi<n;pi++){
+      reqs.push(fetch("audio/"+cur.id+"."+pi+".txt").then(function(r){
+        if(!r.ok)throw new Error("fetch failed");
+        return r.text();
+      }));
+    }
+    Promise.all(reqs).then(function(parts){
+      start(b64ToBlobUrl(parts.join("")));
+    }).catch(function(){
+      if(myGen!==gen)return;
+      auLoading=false;
+      mode="tts";chunks=makeChunks(cur);idx=0;speak();
+    });
+  }
   function playLesson(id){
     for(var i=0;i<LESSONS.length;i++)if(LESSONS[i].id===id)cur=LESSONS[i];
     if(!cur)return;
     gen++;synth.cancel();
-    chunks=makeChunks(cur);idx=0;
-    speak();
+    au.pause();playing=false;auLoading=false;
+    idx=0;
+    if(AUDIO_EPISODES[cur.id]){playAudioLesson();}
+    else{mode="tts";chunks=makeChunks(cur);speak();}
     updateUI();
   }
   function togglePlay(){
     if(!cur){if(LESSONS.length)playLesson(LESSONS[0].id);return;}
+    if(mode==="audio"){
+      if(auLoading)return;
+      if(playing){au.pause();playing=false;updateUI();}
+      else{
+        if(auId!==cur.id){playAudioLesson();return;}
+        au.playbackRate=rate;au.play();playing=true;updateUI();
+      }
+      return;
+    }
     if(playing){gen++;synth.cancel();playing=false;updateUI();}
     else{if(idx>=chunks.length)idx=0;speak();}
   }
   function step(d){
     if(!cur)return;
+    if(mode==="audio"){
+      if(!au.duration)return;
+      au.currentTime=Math.max(0,Math.min(au.duration-1,au.currentTime+d*30));
+      updateUI();return;
+    }
     gen++;synth.cancel();
     idx=Math.max(0,Math.min(chunks.length-1,idx+d));
     if(playing)speak();else updateUI();
   }
   function stopAll(){
-    gen++;synth.cancel();playing=false;idx=0;updateUI();
+    gen++;synth.cancel();
+    au.pause();if(au.src)au.currentTime=0;
+    playing=false;auLoading=false;idx=0;updateUI();
   }
+  au.addEventListener("timeupdate",function(){if(mode==="audio")updateUI();});
+  au.addEventListener("ended",function(){if(mode==="audio")finish();});
+  au.addEventListener("pause",function(){if(mode==="audio"&&playing&&au.currentTime<au.duration-0.5){playing=false;updateUI();}});
   function renderList(){
     var box=$("podList");if(!box)return;
     box.innerHTML="";
     LESSONS.forEach(function(l){
       var b=document.createElement("button");b.className="pod-ep";b.setAttribute("data-id",l.id);
       var done=doneSet[l.id]?"<span class='pod-ep-done'>読了</span> ":"";
-      b.innerHTML="<span class='pod-ep-ic'>▶</span><span class='pod-ep-main'><span class='pod-ep-title'>"+l.title+"</span><span class='pod-ep-meta' style='display:block'>"+done+fieldName(l.field)+" ・ 約"+estMins(l)+"分</span></span>";
+      var kind=AUDIO_EPISODES[l.id]?"生成音声":"読み上げ";
+      b.innerHTML="<span class='pod-ep-ic'>▶</span><span class='pod-ep-main'><span class='pod-ep-title'>"+l.title+"</span><span class='pod-ep-meta' style='display:block'>"+done+fieldName(l.field)+" ・ 約"+estMins(l)+"分 ・ "+kind+"</span></span>";
       b.addEventListener("click",function(){playLesson(l.id);window.scrollTo({top:0,behavior:"smooth"});});
       box.appendChild(b);
     });
@@ -1503,7 +1579,8 @@ buildAIFieldSelect();renderAIList();
     var t=e.target;if(!t.getAttribute("data-rate"))return;
     rate=parseFloat(t.getAttribute("data-rate"));
     document.querySelectorAll(".pod-rate").forEach(function(x){x.classList.toggle("active",x===t);});
-    if(playing){gen++;synth.cancel();speak();}
+    if(mode==="audio"){au.playbackRate=rate;}
+    else if(playing){gen++;synth.cancel();speak();}
   });
   window.podPlayLesson=playLesson;
   window.podPlayNext=function(){
